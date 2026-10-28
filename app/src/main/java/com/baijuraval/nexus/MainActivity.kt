@@ -39,11 +39,8 @@ class MainActivity : Activity() {
         }
 
         setContentView(webView)
-        if (savedInstanceState != null) {
-            webView.restoreState(savedInstanceState)
-        } else {
-            loadHostedHtml()
-        }
+        // Always fetch the latest hosted simulator HTML instead of restoring a stale page.
+        loadHostedHtml()
     }
 
     /**
