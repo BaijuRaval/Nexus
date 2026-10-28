@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -18,8 +17,7 @@ class MainActivity : Activity() {
 
         window.statusBarColor = Color.rgb(3, 7, 17)
         window.navigationBarColor = Color.rgb(3, 7, 17)
-        @Suppress("DEPRECATION")
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        if (android.os.Build.VERSION.SDK_INT >= 30) window.setDecorFitsSystemWindows(true)
 
         webView = WebView(this).apply {
             setBackgroundColor(Color.rgb(3, 7, 17))
