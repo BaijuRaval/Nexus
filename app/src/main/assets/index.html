@@ -764,16 +764,16 @@ body::after { content:none !important; animation:none !important; }
     const meta=document.createElement('div'); meta.className='action-card-meta'; meta.textContent=subtitle;
     head.append(h,meta);
     const main=document.createElement('div'); main.className='action-card-main';
-    const orb=document.createElement('div'); orb.className='scan-orb'+(mode==='secure'?' being-secured':'');
+    const orb=document.createElement('div'); orb.className='scan-orb'+(mode==='secure'?' being-secured':mode==='ping'?' pinging':'');
     const orbcore=document.createElement('div'); orbcore.className='scan-orb-core'; orbcore.textContent='☠️'; orb.appendChild(orbcore);
     const readout=document.createElement('div'); readout.className='action-readout';
-    const status=document.createElement('div'); status.className='action-status'; status.textContent=mode==='secure'?'DEPLOYING DEFENSE':'THREAT ANALYSIS IN PROGRESS';
+    const status=document.createElement('div'); status.className='action-status'; status.textContent=mode==='secure'?'DEPLOYING DEFENSE':mode==='ping'?'PINGING NETWORK PATH':'THREAT ANALYSIS IN PROGRESS';
     const line=document.createElement('div'); line.className='action-percent-line';
     const pctLabel=document.createElement('span'); pctLabel.textContent='PROCESS COMPLETION';
     const pct=document.createElement('strong'); pct.textContent='00%'; line.append(pctLabel,pct);
     const track=document.createElement('div'); track.className='action-progress'+(mode==='secure'?' secure':''); const fill=document.createElement('i'); track.appendChild(fill);
     const phases=document.createElement('div'); phases.className='action-phases';
-    const phaseLabels=mode==='secure'?['01 FILTERS','02 SHIELD','03 HARDEN','04 VERIFY']:['01 MAP','02 PATTERNS','03 RISKS','04 REPORT'];
+    const phaseLabels=mode==='secure'?['01 FILTERS','02 SHIELD','03 HARDEN','04 VERIFY']:mode==='ping'?['01 INITIATE','02 ECHO','03 REPLY','04 SUMMARY']:['01 MAP','02 PATTERNS','03 RISKS','04 REPORT'];
     phaseLabels.forEach((txt,i)=>{const phase=document.createElement('div');phase.className='action-phase'+(i===0?' active':'');phase.textContent=txt;phases.appendChild(phase);});
     readout.append(status,line,track,phases); main.append(orb,readout);
     const logs=document.createElement('div'); logs.className='action-logs'; logs.setAttribute('aria-live','off');
@@ -805,6 +805,18 @@ body::after { content:none !important; animation:none !important; }
     ['[AUDIT]','checking only this page’s animation state','info'],
     ['[VERIFY]','all visual layers are responding','safe'],
     ['[FINAL]','preparing completion report','safe']
+  ];
+  const pingLines = [
+    ['[PING]','initializing echo sequence','info'],
+    ['[ROUTE]','mapping response path','info'],
+    ['[ECHO]','rendering probe request 01','info'],
+    ['[ECHO]','rendering probe request 02','info'],
+    ['[WAIT]','awaiting reply window','info'],
+    ['[REPLY]','reply frame received','safe'],
+    ['[LATENCY]','updating response-time graph','info'],
+    ['[ECHO]','rendering probe request 03','info'],
+    ['[ROUTE]','checking hop sequence','info'],
+    ['[SUMMARY]','assembling ping telemetry','safe']
   ];
   function stopActionTimers() { actionTimers.forEach(clearTimeout); actionIntervals.forEach(clearInterval); actionTimers=[]; actionIntervals=[]; }
   function appendLog(host, line) {
@@ -842,6 +854,49 @@ body::after { content:none !important; animation:none !important; }
     
     box.append(title,target,stats,findings,ask,actions);return box;
   }
+  async function startPing(request) {
+    const restoreConfirmation = flowState === 'awaiting-confirmation';
+    stopActionTimers(); flowState='pinging'; latestRequest=request; setComposerBusy(true);
+    const msg=createAssistantMessage();
+    const intro=document.createElement('div'); intro.className='chat-bubble';
+    const p=document.createElement('p'); p.textContent='Ping request received. Starting ping sequence.';
+    intro.appendChild(p); msg.body.appendChild(intro);
+    const view=makeActionCard('⌁ PING SEQUENCE','10.0s / ACTIVE PING','ping');
+    msg.body.appendChild(view.card); currentAction=view; scrollChat();
+    const start=performance.now(); let scriptIndex=0;
+    appendLog(view.logs,pingLines[0]);
+    const logTimer=setInterval(()=>{appendLog(view.logs,pingLines[(++scriptIndex)%pingLines.length]);},720);
+    actionIntervals.push(logTimer);
+    const phases=[0,2500,5000,7500];
+    const labels=['INITIALIZING PROBES','SENDING ECHO REQUESTS','TRACKING REPLIES','COMPILING SUMMARY'];
+    const progressTimer=setInterval(()=>{
+      if(flowState!=='pinging') return;
+      const elapsed=Math.min(10000,performance.now()-start);
+      const percent=Math.floor(elapsed/10000*100);
+      view.pct.textContent=String(percent).padStart(2,'0')+'%';
+      view.fill.style.width=percent+'%';
+      const phaseIndex=phases.reduce((last,at,i)=>elapsed>=at?i:last,0);
+      view.status.textContent=labels[phaseIndex];
+      [...view.phases.children].forEach((el,i)=>{el.classList.toggle('active',i===phaseIndex);el.classList.toggle('done',i<phaseIndex);});
+      view.meta.textContent=`${Math.max(0,10-elapsed/1000).toFixed(1)}s REMAINING`;
+    },80);
+    actionIntervals.push(progressTimer);
+    await delay(10000);
+    stopActionTimers();
+    view.pct.textContent='100%'; view.fill.style.width='100%';
+    view.status.textContent='PING SEQUENCE COMPLETE'; view.status.classList.add('safe');
+    view.meta.textContent='SEQUENCE COMPLETE';
+    [...view.phases.children].forEach(el=>{el.classList.remove('active');el.classList.add('done');});
+    appendLog(view.logs,['[DONE]','ping sequence summary ready','safe']);
+    const summary=document.createElement('div'); summary.className='success-card';
+    const title=document.createElement('div'); title.className='success-title'; title.innerHTML='PING <span>COMPLETE</span>';
+    const detail=document.createElement('p'); detail.className='success-summary';
+    detail.textContent='The 10-second ping sequence has finished. Enter another prompt to continue.';
+    summary.append(title,detail); msg.body.appendChild(summary);
+    flowState=restoreConfirmation?'awaiting-confirmation':'idle';
+    setComposerBusy(false); scrollChat();
+  }
+
   async function startScan(request) {
     stopActionTimers(); flowState='scanning'; latestRequest=request; latestTarget=maskTarget(request); setComposerBusy(true);
     const msg=createAssistantMessage();
@@ -966,6 +1021,8 @@ body::after { content:none !important; animation:none !important; }
     const text=raw.trim(); if(!text) return;
     if(flowState==='scanning'||flowState==='securing') return;
     addUserMessage(text);
+
+    if (/\bping\b/i.test(text)) { await startPing(text); return; }
 
     const phoneNumber = extractPhoneNumber(text);
     if (phoneNumber) { await startScan(phoneNumber); return; }
