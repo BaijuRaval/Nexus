@@ -653,11 +653,11 @@ body::after { content:none !important; animation:none !important; }
   .boot-footer { position:relative; z-index:9; flex:0 0 auto; }
   /* Central visual sections are staged individually, then kicked out of view. */
   .boot-overlay.boot-detail-phase .boot-content { opacity:1; visibility:visible; transform:none; }
-  .boot-overlay.boot-detail-phase .boot-core-wrap.boot-staged,
-  .boot-overlay.boot-detail-phase .boot-title-wrap.boot-staged,
-  .boot-overlay.boot-detail-phase .boot-equalizer.boot-staged,
-  .boot-overlay.boot-detail-phase .boot-module-grid.boot-staged,
-  .boot-overlay.boot-detail-phase .boot-side-hud.boot-staged {
+  .boot-overlay.boot-detail-phase .boot-core-wrap.boot-staged:not(.stage-entering):not(.stage-exiting),
+  .boot-overlay.boot-detail-phase .boot-title-wrap.boot-staged:not(.stage-entering):not(.stage-exiting),
+  .boot-overlay.boot-detail-phase .boot-equalizer.boot-staged:not(.stage-entering):not(.stage-exiting),
+  .boot-overlay.boot-detail-phase .boot-module-grid.boot-staged:not(.stage-entering):not(.stage-exiting),
+  .boot-overlay.boot-detail-phase .boot-side-hud.boot-staged:not(.stage-entering):not(.stage-exiting) {
     display:none !important; opacity:0 !important; visibility:hidden !important; animation:none !important;
   }
   .boot-overlay.boot-detail-phase .boot-core-wrap.boot-staged.stage-entering,
