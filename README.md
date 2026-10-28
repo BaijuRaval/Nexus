@@ -1,12 +1,12 @@
 # NEXUS Android
 
-A lightweight Android WebView wrapper that loads the NEXUS interface directly from the repository's hosted raw HTML.
+A lightweight Android WebView wrapper that loads the NEXUS interface from a CDN URL served as HTML.
 
 ## Update the app without rebuilding
 Edit and commit `app/src/main/assets/index.html` on the `main` branch. Installed apps will load the updated HTML the next time they start with an internet connection. HTML/CSS/JavaScript-only changes do not require a new APK.
 
 Hosted page:
-`https://raw.githubusercontent.com/BaijuRaval/Nexus/main/app/src/main/assets/index.html`
+`https://cdn.jsdelivr.net/gh/BaijuRaval/Nexus@main/app/src/main/assets/index.html`
 
 ## Build the APK
 The GitHub Actions workflow **Build Android APK** builds a debug APK on every push to `main` and publishes it as a prerelease asset.
