@@ -724,6 +724,7 @@ body::after { content:none !important; animation:none !important; }
   let actionIntervals = [];
 
   function scrollChat() { chatFeed.scrollTop = chatFeed.scrollHeight; }
+  // Keep the opening NEXUS welcome sequence in view; do not force-scroll during its typing animation.
   function createAssistantMessage(label='NEXUS') {
     const article = document.createElement('article'); article.className='chat-msg assistant';
     const avatar = document.createElement('div'); avatar.className='chat-avatar'; avatar.setAttribute('aria-hidden','true'); avatar.textContent='☠️';
@@ -1108,10 +1109,9 @@ body::after { content:none !important; animation:none !important; }
     el.appendChild(caret);
     for(let i=0;i<text.length;i++){
       caret.before(document.createTextNode(text[i]));
-      if(i%3===0)scrollChat();
       await delay(speed+(Math.random()*7));
     }
-    caret.remove();scrollChat();
+    caret.remove();
   }
   async function runHomeEntrance(){
     await delay(120);
@@ -1137,7 +1137,8 @@ body::after { content:none !important; animation:none !important; }
     await revealForEntrance(composerWrap);
     chatInput.disabled=false;
     chatInput.blur();
-    scrollChat();
+    // Leave the feed at the top after the staged welcome so users see the whole opening sequence.
+    chatFeed.scrollTop = 0;
   }
 
   // Original boot timing preserved: logo-only for 5 seconds, holographic details through second 20.
