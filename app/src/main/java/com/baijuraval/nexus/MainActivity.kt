@@ -33,7 +33,7 @@ class MainActivity : Activity() {
 
         setContentView(webView)
         if (savedInstanceState == null) {
-            webView.loadUrl("https://raw.githubusercontent.com/BaijuRaval/Nexus/main/app/src/main/assets/index.html")
+            webView.loadUrl("https://cdn.jsdelivr.net/gh/BaijuRaval/Nexus@main/app/src/main/assets/index.html?refresh=${System.currentTimeMillis()}")
         } else {
             webView.restoreState(savedInstanceState)
         }
