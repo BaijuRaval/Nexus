@@ -23,8 +23,8 @@ class MainActivity : Activity() {
             setBackgroundColor(Color.rgb(3, 7, 17))
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
-            settings.allowFileAccess = true
-            settings.allowContentAccess = true
+            settings.allowFileAccess = false
+            settings.allowContentAccess = false
             settings.mediaPlaybackRequiresUserGesture = false
             settings.javaScriptCanOpenWindowsAutomatically = false
             webViewClient = WebViewClient()
@@ -33,7 +33,7 @@ class MainActivity : Activity() {
 
         setContentView(webView)
         if (savedInstanceState == null) {
-            webView.loadUrl("file:///android_asset/index.html")
+            webView.loadUrl("https://raw.githubusercontent.com/BaijuRaval/Nexus/main/app/src/main/assets/index.html")
         } else {
             webView.restoreState(savedInstanceState)
         }
