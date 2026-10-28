@@ -532,7 +532,29 @@ body.home-visible .shell { opacity:1; visibility:visible; transform:translateY(0
 .scan-orb-core { position:relative; z-index:2; color:#d7f5ff; font-size:23px; filter:drop-shadow(0 0 12px rgba(52,178,255,.8)); animation:corePulse 1.8s ease-in-out infinite; }
 .scan-orb.being-secured { border-color:rgba(73,245,161,.55); box-shadow:0 0 32px rgba(73,245,161,.13); }.scan-orb.being-secured::before { border-color:rgba(73,245,161,.6); }.scan-orb.being-secured::after { border-top-color:#49f5a1; }
 @keyframes orbSpin { to { transform:rotate(360deg); } } @keyframes corePulse { 0%,100% { transform:scale(.94); opacity:.78; } 50% { transform:scale(1.1); opacity:1; } }
-.action-readout { min-width:0; }
+/* Dedicated ping visualization: handset sends echo packets to a server and receives replies. */
+  .ping-visual { grid-column:1 / -1; width:100%; min-height:126px; display:grid; grid-template-columns:72px minmax(70px,1fr) 84px; align-items:center; gap:10px; padding:12px 8px; border:1px solid rgba(49,171,255,.2); background:radial-gradient(ellipse at center,rgba(14,94,160,.13),rgba(2,8,20,.25) 70%); overflow:hidden; }
+  .ping-endpoint { display:flex; flex-direction:column; align-items:center; gap:7px; color:#d8f2ff; font-size:11px; letter-spacing:.07em; text-align:center; position:relative; z-index:2; }
+  .ping-device { width:34px; height:57px; border:2px solid #64caff; border-radius:7px; position:relative; display:grid; place-items:center; color:#8bdcff; font-size:17px; background:rgba(10,75,123,.35); box-shadow:0 0 16px rgba(49,171,255,.22),inset 0 0 12px rgba(49,171,255,.12); animation:pingDeviceGlow 1.4s ease-in-out infinite; }
+  .ping-device::after { content:""; position:absolute; bottom:4px; width:7px; height:2px; border-radius:2px; background:#8bdcff; }
+  .ping-server { width:48px; height:49px; display:flex; flex-direction:column; justify-content:center; gap:5px; padding:7px; border:1px solid rgba(73,245,161,.65); background:rgba(7,72,57,.3); box-shadow:0 0 18px rgba(73,245,161,.13); }
+  .ping-server i { display:block; height:6px; border:1px solid rgba(73,245,161,.48); position:relative; }
+  .ping-server i::after { content:""; position:absolute; right:3px; top:1px; width:3px; height:2px; background:#49f5a1; box-shadow:0 0 5px #49f5a1; }
+  .ping-lane { height:54px; position:relative; display:flex; align-items:center; }
+  .ping-lane::before,.ping-lane::after { content:""; position:absolute; left:0; right:0; height:1px; background:rgba(73,174,255,.28); }
+  .ping-lane::before { top:15px; }.ping-lane::after { bottom:15px; }
+  .ping-track-label { position:absolute; width:100%; text-align:center; top:-2px; color:#6f9fca; font-size:9px; letter-spacing:.08em; }
+  .ping-packet { position:absolute; left:0; top:12px; width:8px; height:8px; border-radius:2px; background:#c9f4ff; box-shadow:0 0 10px #42baff,0 0 20px rgba(66,186,255,.55); animation:pingToServer 1.25s linear infinite; }
+  .ping-packet.reply { top:35px; width:7px; height:7px; background:#49f5a1; box-shadow:0 0 10px #49f5a1; animation:pingToDevice 1.25s linear infinite; animation-delay:.62s; }
+  .ping-packet:nth-of-type(4) { animation-delay:.42s; }.ping-packet.reply:nth-of-type(5) { animation-delay:1.04s; }
+  .ping-lane-label { position:absolute; bottom:-2px; left:0; right:0; display:flex; justify-content:space-between; color:#6f9fca; font-size:9px; }
+  @keyframes pingToServer { from { left:0; opacity:0; transform:scale(.65); } 12% { opacity:1; } 88% { opacity:1; } to { left:calc(100% - 8px); opacity:0; transform:scale(1.15); } }
+  @keyframes pingToDevice { from { left:calc(100% - 7px); opacity:0; } 12% { opacity:1; } 88% { opacity:1; } to { left:0; opacity:0; } }
+  @keyframes pingDeviceGlow { 0%,100% { box-shadow:0 0 10px rgba(49,171,255,.12); } 50% { box-shadow:0 0 22px rgba(49,171,255,.38); } }
+  .chat-action-card:has(.ping-visual) .action-card-main { grid-template-columns:1fr; }
+  .chat-action-card:has(.ping-visual) .action-readout { width:100%; }
+  @media (max-width:780px) { .ping-visual { grid-template-columns:58px minmax(50px,1fr) 65px; gap:6px; padding:10px 5px; } .ping-device { width:29px; height:49px; } .ping-server { width:42px; height:43px; } .ping-endpoint { font-size:9px; } }
+  .action-readout { min-width:0; }
 .action-status { color:#71caff; font-size:12px; letter-spacing:.12em; text-transform:uppercase; }.action-status.safe { color:#49f5a1; }.action-status.threat { color:#ff637b; }
 .action-percent-line { display:flex; justify-content:space-between; gap:12px; margin:12px 0 7px; color:#9ec9e8; font-size:13px; }.action-percent-line strong { color:#effaff; font-size:16px; }
 .action-progress { height:7px; background:rgba(67,151,207,.15); overflow:hidden; }.action-progress i { display:block; height:100%; width:0%; background:linear-gradient(90deg,#0875d4,#36b9ff,#dcf7ff); box-shadow:0 0 14px rgba(49,171,255,.5); transition:width .12s linear; }
@@ -765,8 +787,14 @@ body::after { content:none !important; animation:none !important; }
     const meta=document.createElement('div'); meta.className='action-card-meta'; meta.textContent=subtitle;
     head.append(h,meta);
     const main=document.createElement('div'); main.className='action-card-main';
-    const orb=document.createElement('div'); orb.className='scan-orb'+(mode==='secure'?' being-secured':mode==='ping'?' pinging':'');
-    const orbcore=document.createElement('div'); orbcore.className='scan-orb-core'; orbcore.textContent='☠️'; orb.appendChild(orbcore);
+    const orb=document.createElement('div');
+    if(mode==='ping'){
+      orb.className='ping-visual';
+      orb.innerHTML='<div class="ping-endpoint"><div class="ping-device">▣</div><b>MOBILE</b></div><div class="ping-lane"><span class="ping-track-label">ICMP ECHO / SIGNAL PATH</span><i class="ping-packet"></i><i class="ping-packet"></i><i class="ping-packet reply"></i><i class="ping-packet reply"></i><div class="ping-lane-label"><span>REQUEST →</span><span>← REPLY</span></div></div><div class="ping-endpoint"><div class="ping-server"><i></i><i></i><i></i></div><b>SERVER</b></div>';
+    } else {
+      orb.className='scan-orb'+(mode==='secure'?' being-secured':'');
+      const orbcore=document.createElement('div'); orbcore.className='scan-orb-core'; orbcore.textContent='☠️'; orb.appendChild(orbcore);
+    }
     const readout=document.createElement('div'); readout.className='action-readout';
     const status=document.createElement('div'); status.className='action-status'; status.textContent=mode==='secure'?'DEPLOYING DEFENSE':mode==='ping'?'PINGING NETWORK PATH':'THREAT ANALYSIS IN PROGRESS';
     const line=document.createElement('div'); line.className='action-percent-line';
