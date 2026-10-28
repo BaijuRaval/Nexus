@@ -3,6 +3,7 @@
     <application
         android:allowBackup="false"
         android:label="NEXUS"
+        android:icon="@drawable/ic_nexus_launcher"
         android:theme="@android:style/Theme.Material.NoActionBar"
         android:usesCleartextTraffic="false"
         android:supportsRtl="true">
