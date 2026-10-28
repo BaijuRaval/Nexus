@@ -594,17 +594,15 @@ body.home-visible .shell { opacity:1; visibility:visible; transform:translateY(0
 .boot-logo-intro .intro-skull {
   position:relative; z-index:auto; width:auto; height:auto; display:block;
   font-style:normal; font-size:clamp(78px,18vh,150px); line-height:1;
-  margin:0; transform:none; filter:drop-shadow(0 0 26px rgba(69,191,255,.72));
-  animation:introSkullBreath 2.5s ease-in-out infinite;
+  margin:0; transform:none; filter:none !important; text-shadow:none !important;
+  animation:none !important;
 }
 .boot-logo-intro .intro-wordmark {
   margin-top:24px; color:#e8f8ff; font-size:clamp(38px,7vw,66px);
-  letter-spacing:.34em; padding-left:.34em; text-shadow:0 0 26px rgba(71,190,255,.42);
+  letter-spacing:.34em; padding-left:.34em; text-shadow:none; font-family:var(--mono);
 }
-@keyframes introSkullBreath {
-  0%,100% { transform:scale(.97); filter:drop-shadow(0 0 18px rgba(69,191,255,.55)); }
-  50% { transform:scale(1.035); filter:drop-shadow(0 0 32px rgba(69,191,255,.88)); }
-}
+.boot-logo-intro .intro-wordmark::before { content:"root@nx:~$"; display:block; margin-bottom:10px; color:#58c6ff; font-size:.19em; letter-spacing:.08em; padding-left:0; }
+.boot-logo-intro .intro-wordmark::after { content:"▌"; display:inline-block; margin-left:.14em; color:#58c6ff; font-size:.75em; animation:bootBlink .8s steps(2) infinite; vertical-align:.04em; }
 /* Remove the sweeping beam from both boot and home backgrounds. */
 .boot-overlay::after { content:none !important; animation:none !important; }
 body::after { content:none !important; animation:none !important; }
@@ -631,6 +629,70 @@ body::after { content:none !important; animation:none !important; }
 
   /* Boot scenes: remove the perspective grid background. */
   .boot-grid { display:none !important; background-image:none !important; animation:none !important; }
+
+  /* Launch logo: neutral skull and terminal-style character typing on NEXUS. */
+  .boot-logo-intro .intro-skull { filter:none !important; text-shadow:none !important; animation:none !important; }
+  .boot-logo-intro .intro-wordmark { animation:none !important; text-shadow:none !important; }
+  /* Keep diagnostics/progress docked across the bottom for the whole detailed boot phase. */
+  .boot-content {
+    width:min(700px,calc(100% - 28px)); flex:1 1 auto; height:auto; min-height:190px;
+    max-height:none; margin:0 auto; padding:8px 0 205px; justify-content:center;
+    overflow:visible; position:relative; z-index:2;
+  }
+  .boot-persistent {
+    position:absolute; left:0; right:0; bottom:0; z-index:7; min-height:205px;
+    padding:12px clamp(14px,3vw,34px) 54px;
+    background:linear-gradient(180deg,rgba(2,8,20,.68),rgba(1,4,12,.97) 22%,rgba(1,4,12,.99));
+    border-top:1px solid rgba(49,171,255,.17);
+    opacity:0; visibility:hidden; transition:opacity .45s ease,visibility .45s;
+  }
+  .boot-overlay.boot-detail-phase .boot-persistent { opacity:1; visibility:visible; }
+  .boot-persistent .boot-log-panel,.boot-persistent .boot-progress-area { width:min(700px,100%); margin-left:auto; margin-right:auto; }
+  .boot-persistent .boot-log-panel { animation:none !important; }
+  .boot-persistent .boot-progress-area { margin-top:10px; animation:none !important; }
+  .boot-footer { position:relative; z-index:9; flex:0 0 auto; }
+  /* Central visual sections are staged individually, then kicked out of view. */
+  .boot-overlay.boot-detail-phase .boot-content { opacity:1; visibility:visible; transform:none; }
+  .boot-overlay.boot-detail-phase .boot-core-wrap.boot-staged,
+  .boot-overlay.boot-detail-phase .boot-title-wrap.boot-staged,
+  .boot-overlay.boot-detail-phase .boot-equalizer.boot-staged,
+  .boot-overlay.boot-detail-phase .boot-module-grid.boot-staged,
+  .boot-overlay.boot-detail-phase .boot-side-hud.boot-staged {
+    display:none !important; opacity:0 !important; visibility:hidden !important; animation:none !important;
+  }
+  .boot-overlay.boot-detail-phase .boot-core-wrap.boot-staged.stage-entering,
+  .boot-overlay.boot-detail-phase .boot-core-wrap.boot-staged.stage-exiting { display:grid !important; }
+  .boot-overlay.boot-detail-phase .boot-title-wrap.boot-staged.stage-entering,
+  .boot-overlay.boot-detail-phase .boot-title-wrap.boot-staged.stage-exiting { display:block !important; }
+  .boot-overlay.boot-detail-phase .boot-equalizer.boot-staged.stage-entering,
+  .boot-overlay.boot-detail-phase .boot-equalizer.boot-staged.stage-exiting { display:flex !important; }
+  .boot-overlay.boot-detail-phase .boot-module-grid.boot-staged.stage-entering,
+  .boot-overlay.boot-detail-phase .boot-module-grid.boot-staged.stage-exiting { display:grid !important; }
+  .boot-overlay.boot-detail-phase .boot-side-hud.boot-staged.stage-entering,
+  .boot-overlay.boot-detail-phase .boot-side-hud.boot-staged.stage-exiting { display:block !important; }
+  .boot-staged.stage-entering { opacity:1 !important; visibility:visible !important; animation:bootStageEnter .56s cubic-bezier(.16,1,.3,1) both !important; }
+  .boot-staged.stage-exiting { opacity:1 !important; visibility:visible !important; animation:bootStageKick .64s cubic-bezier(.65,0,.95,.35) both !important; }
+  @keyframes bootStageEnter { from { opacity:0; transform:translateY(30px) scale(.68); filter:blur(7px); } 72% { opacity:1; transform:translateY(-4px) scale(1.025); filter:blur(0); } to { opacity:1; transform:translateY(0) scale(1); filter:blur(0); } }
+  @keyframes bootStageKick { from { opacity:1; transform:translate(0,0) scale(1); filter:blur(0); } 35% { opacity:1; transform:translate(0,-8px) scale(1.04); } to { opacity:0; transform:translate(0,-125vh) scale(.72); filter:blur(7px); } }
+  .boot-side-left.stage-exiting { animation:bootStageKickLeft .64s cubic-bezier(.65,0,.95,.35) both !important; }
+  .boot-side-right.stage-exiting { animation:bootStageKickRight .64s cubic-bezier(.65,0,.95,.35) both !important; }
+  @keyframes bootStageKickLeft { to { opacity:0; transform:translateX(-150vw) rotate(-8deg) scale(.7); filter:blur(6px); } }
+  @keyframes bootStageKickRight { to { opacity:0; transform:translateX(150vw) rotate(8deg) scale(.7); filter:blur(6px); } }
+  @media (max-width:760px) {
+    .boot-content { width:calc(100% - 24px); padding-bottom:190px; }
+    .boot-persistent { min-height:190px; padding:10px 12px 48px; }
+    .boot-log { height:43px; }
+  }
+  @media (max-height:680px) {
+    .boot-content { padding-bottom:185px; min-height:150px; }
+    .boot-persistent { min-height:175px; padding-bottom:43px; }
+    .boot-log { height:36px; }
+    .boot-persistent .boot-progress-area { margin-top:6px; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .boot-staged.stage-entering,.boot-staged.stage-exiting { animation-duration:.01ms !important; }
+  }
+
 </style>
 </head>
 <body>
@@ -642,32 +704,34 @@ body::after { content:none !important; animation:none !important; }
   <div class="boot-grid"></div><div class="boot-vignette"></div>
   <div class="boot-topline"><span class="boot-brandmark">☠️</span><span class="boot-toplabel">NEXUS / COGNITIVE SYSTEMS</span><span class="boot-live"><i></i> STARTUP <b id="bootCountdown">20.0</b>s</span></div>
   <div class="boot-content">
-    <div class="boot-core-wrap" aria-hidden="true">
+    <div class="boot-core-wrap boot-staged" aria-hidden="true">
       <div class="boot-orbit boot-orbit-a"></div><div class="boot-orbit boot-orbit-b"></div><div class="boot-orbit boot-orbit-c"></div>
       <div class="boot-tick-ring"></div><div class="boot-cross boot-cross-h"></div><div class="boot-cross boot-cross-v"></div>
       <div class="boot-core"><div class="boot-core-inner">☠️</div></div><div class="boot-core-scan"></div>
       <span class="boot-coord coord-a">NX / 07</span><span class="boot-coord coord-b">CORE LINK 100%</span>
       <span class="boot-coord coord-c">0xA7 · 4F · C2</span><span class="boot-coord coord-d">AI SYSTEM ONLINE</span>
     </div>
-    <div class="boot-title-wrap"><div class="boot-eyebrow">AUTONOMOUS INTERFACE // INITIALIZATION</div><h1>NEXUS</h1><div class="boot-subtitle">PERSONAL AI DEFENSE SYSTEM</div><div class="boot-message" id="bootMessage">Awakening cognitive core<span class="boot-caret">▌</span></div></div>
-    <div class="boot-equalizer" aria-hidden="true"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i><i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i><i style="--i:12"></i><i style="--i:13"></i><i style="--i:14"></i><i style="--i:15"></i><i style="--i:16"></i><i style="--i:17"></i><i style="--i:18"></i><i style="--i:19"></i><i style="--i:20"></i><i style="--i:21"></i><i style="--i:22"></i><i style="--i:23"></i><i style="--i:24"></i><i style="--i:25"></i><i style="--i:26"></i><i style="--i:27"></i><i style="--i:28"></i><i style="--i:29"></i><i style="--i:30"></i><i style="--i:31"></i><i style="--i:32"></i><i style="--i:33"></i><i style="--i:34"></i><i style="--i:35"></i></div>
-    <div class="boot-module-grid">
+    <div class="boot-title-wrap boot-staged"><div class="boot-eyebrow">AUTONOMOUS INTERFACE // INITIALIZATION</div><h1>NEXUS</h1><div class="boot-subtitle">PERSONAL AI DEFENSE SYSTEM</div><div class="boot-message" id="bootMessage">Awakening cognitive core<span class="boot-caret">▌</span></div></div>
+    <div class="boot-equalizer boot-staged" aria-hidden="true"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i><i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i><i style="--i:12"></i><i style="--i:13"></i><i style="--i:14"></i><i style="--i:15"></i><i style="--i:16"></i><i style="--i:17"></i><i style="--i:18"></i><i style="--i:19"></i><i style="--i:20"></i><i style="--i:21"></i><i style="--i:22"></i><i style="--i:23"></i><i style="--i:24"></i><i style="--i:25"></i><i style="--i:26"></i><i style="--i:27"></i><i style="--i:28"></i><i style="--i:29"></i><i style="--i:30"></i><i style="--i:31"></i><i style="--i:32"></i><i style="--i:33"></i><i style="--i:34"></i><i style="--i:35"></i></div>
+    <div class="boot-module-grid boot-staged">
       <div class="boot-module" data-module="core"><span class="boot-module-icon">◈</span><span><small>COGNITIVE CORE</small><b>INITIALIZING</b></span><i></i></div>
       <div class="boot-module" data-module="shield"><span class="boot-module-icon">⬡</span><span><small>DEFENSE MATRIX</small><b>STANDBY</b></span><i></i></div>
       <div class="boot-module" data-module="network"><span class="boot-module-icon">⌘</span><span><small>NETWORK MODEL</small><b>STANDBY</b></span><i></i></div>
       <div class="boot-module" data-module="telemetry"><span class="boot-module-icon">⌁</span><span><small>LIVE TELEMETRY</small><b>STANDBY</b></span><i></i></div>
     </div>
+  </div>
+  <div class="boot-persistent">
     <div class="boot-log-panel"><div class="boot-log-head"><span>BOOT DIAGNOSTICS</span><span><i></i> LOCAL PROCESS</span></div><div class="boot-log" id="bootLog"><div class="boot-log-line"><span>00:00:00</span> &gt; Loading Nexus runtime kernel...</div></div></div>
     <div class="boot-progress-area"><div class="boot-progress-label"><span id="bootProgressText">SYSTEM PRE-FLIGHT</span><b id="bootProgressPercent">00%</b></div><div class="boot-progress-track"><i id="bootProgressBar"></i><span></span></div><div class="boot-progress-footer"><span>SECURE LOCAL SESSION</span><span>PROTOCOL NX-07 / V1.0</span></div></div>
   </div>
-  <div class="boot-side-hud boot-side-left" aria-hidden="true">
+  <div class="boot-side-hud boot-side-left boot-staged" aria-hidden="true">
     <div class="side-hud-heading">OPTICAL BUS <span>● LIVE</span></div>
     <div class="side-radial"><i></i><b>NX</b></div>
     <div class="side-hud-row"><span>PHASE LOCK</span><b>98.7%</b></div><div class="side-hud-meter"><i style="--level:98%"></i></div>
     <div class="side-hud-row"><span>CORE SYNC</span><b>STABLE</b></div><div class="side-hud-meter"><i style="--level:83%"></i></div>
     <div class="side-hud-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
-  <div class="boot-side-hud boot-side-right" aria-hidden="true">
+  <div class="boot-side-hud boot-side-right boot-staged" aria-hidden="true">
     <div class="side-hud-heading">DEFENSE LAYERS <span>NX-07</span></div>
     <div class="side-hud-row"><span>ENCRYPTION</span><b>AES-256</b></div><div class="side-hud-meter"><i style="--level:91%"></i></div>
     <div class="side-hud-row"><span>ANOMALY MODEL</span><b>LOADING</b></div><div class="side-hud-meter"><i style="--level:67%"></i></div>
@@ -1176,11 +1240,42 @@ body::after { content:none !important; animation:none !important; }
   ];
   const bootStages=[[0,'Awakening cognitive core','SYSTEM PRE-FLIGHT'],[2,'Calibrating holographic interface','COGNITIVE CORE / LOADING'],[4,'Mapping the environment','DEFENSE MATRIX / INITIALIZING'],[6,'Bringing defense layers online','DEFENSE MATRIX / CALIBRATING'],[8,'Isolating diagnostic threat vectors','THREAT MONITOR / SELF-TEST'],[10,'Synchronizing live telemetry','TELEMETRY / SYNCHRONIZING'],[12,'Building the network visualization','NETWORK MODEL / RENDERING'],[14,'Validating system indicators','INTEGRITY CHECK / VALIDATING'],[16,'Running final interface diagnostics','FINAL SYSTEM CHECK'],[18,'All systems ready','SYSTEM ONLINE / READY']];
   let bootStart=performance.now(),bootLogIndex=0,bootNextLogAt=0,bootLeaving=false,bootDone=false;
+  const introWordmark=document.querySelector('.intro-wordmark');
+  async function typeIntroWordmark(){
+    if(!introWordmark)return;
+    const word='NEXUS'; introWordmark.textContent='';
+    for(let i=0;i<word.length;i++){
+      if(bootDone)return;
+      introWordmark.textContent=word.slice(0,i+1);
+      await delay(260);
+    }
+  }
+  const bootStageSequence=[
+    {el:document.querySelector('.boot-core-wrap'),start:5.05,end:6.2},
+    {el:document.querySelector('.boot-title-wrap'),start:6.25,end:7.45},
+    {el:document.querySelector('.boot-equalizer'),start:7.5,end:8.45},
+    {el:document.querySelector('.boot-module-grid'),start:8.5,end:10.35},
+    {el:document.querySelector('.boot-side-hud.boot-side-left'),start:10.45,end:12.05},
+    {el:document.querySelector('.boot-side-hud.boot-side-right'),start:12.15,end:13.75}
+  ];
+  function updateBootStages(seconds){
+    for(const stage of bootStageSequence){
+      const el=stage.el;if(!el)continue;
+      if(seconds<stage.start||el.classList.contains('stage-done'))continue;
+      if(seconds<stage.end){
+        if(!el.classList.contains('stage-entering')&&!el.classList.contains('stage-exiting'))el.classList.add('stage-entering');
+      }else if(seconds<stage.end+.68){
+        if(!el.classList.contains('stage-exiting')){el.classList.remove('stage-entering');el.classList.add('stage-exiting');}
+      }else{
+        el.classList.remove('stage-entering','stage-exiting');el.classList.add('stage-done');
+      }
+    }
+  }
   function addBootLog(entry){const[stamp,message,style]=entry;const row=document.createElement('div');row.className='boot-log-line';const ts=document.createElement('span');ts.textContent=stamp;const body=document.createElement('span');if(style==='safe')body.className='boot-safe';if(style==='threat')body.className='boot-threat';row.append(ts,document.createTextNode(' > '),body);bootLog.appendChild(row);while(bootLog.children.length>4)bootLog.firstElementChild.remove();let i=0;const typeChar=()=>{if(bootDone||!row.isConnected)return;body.textContent=message.slice(0,i++);if(i<=message.length)setTimeout(typeChar,7+Math.random()*6);};typeChar();}
   function setBootModuleState(name,ready){const node=document.querySelector(`.boot-module[data-module="${name}"]`);if(!node)return;node.classList.toggle('ready',ready);const label=node.querySelector('b');if(label)label.textContent=ready?'ONLINE':'INITIALIZING';}
   function finishBoot(){if(bootDone)return;bootDone=true;bootOverlay.classList.add('is-leaving');bootCountdown.textContent='0.0';bootProgressBar.style.width='100%';bootProgressPercent.textContent='100%';bootProgressText.textContent='ALL SYSTEMS ONLINE';setTimeout(()=>{bootOverlay.hidden=true;document.body.style.overflow='';document.body.classList.add('home-visible');resizeNetwork();runHomeEntrance();},350);}
-  function updateBoot(){if(bootDone)return;const elapsed=Math.min(performance.now()-bootStart,20000),seconds=elapsed/1000;if(seconds>=5)bootOverlay.classList.add('boot-detail-phase');const percent=Math.min(100,Math.floor(elapsed/20000*100));bootCountdown.textContent=(20-seconds).toFixed(1);bootProgressBar.style.width=percent+'%';bootProgressPercent.textContent=String(percent).padStart(2,'0')+'%';let stage=bootStages[0];for(const c of bootStages)if(seconds>=c[0])stage=c;bootMessage.innerHTML=`${stage[1]}<span class="boot-caret">▌</span>`;bootProgressText.textContent=stage[2];if(seconds>=3)setBootModuleState('core',true);if(seconds>=6)setBootModuleState('shield',true);if(seconds>=10)setBootModuleState('network',true);if(seconds>=13)setBootModuleState('telemetry',true);if(performance.now()>=bootNextLogAt&&bootLogIndex<bootLogEntries.length){addBootLog(bootLogEntries[bootLogIndex++]);bootNextLogAt=performance.now()+760;}if(elapsed>=19650&&!bootLeaving){bootLeaving=true;bootOverlay.classList.add('is-leaving');}if(elapsed>=20000){finishBoot();return;}requestAnimationFrame(updateBoot);}
-  document.body.style.overflow='hidden';document.body.classList.remove('home-visible');requestAnimationFrame(updateBoot);
+  function updateBoot(){if(bootDone)return;const elapsed=Math.min(performance.now()-bootStart,20000),seconds=elapsed/1000;if(seconds>=5)bootOverlay.classList.add('boot-detail-phase');updateBootStages(seconds);const percent=Math.min(100,Math.floor(elapsed/20000*100));bootCountdown.textContent=(20-seconds).toFixed(1);bootProgressBar.style.width=percent+'%';bootProgressPercent.textContent=String(percent).padStart(2,'0')+'%';let stage=bootStages[0];for(const c of bootStages)if(seconds>=c[0])stage=c;bootMessage.innerHTML=`${stage[1]}<span class="boot-caret">▌</span>`;bootProgressText.textContent=stage[2];if(seconds>=3)setBootModuleState('core',true);if(seconds>=6)setBootModuleState('shield',true);if(seconds>=10)setBootModuleState('network',true);if(seconds>=13)setBootModuleState('telemetry',true);if(performance.now()>=bootNextLogAt&&bootLogIndex<bootLogEntries.length){addBootLog(bootLogEntries[bootLogIndex++]);bootNextLogAt=performance.now()+760;}if(elapsed>=19650&&!bootLeaving){bootLeaving=true;bootOverlay.classList.add('is-leaving');}if(elapsed>=20000){finishBoot();return;}requestAnimationFrame(updateBoot);}
+  document.body.style.overflow='hidden';document.body.classList.remove('home-visible');typeIntroWordmark();requestAnimationFrame(updateBoot);
 })();
 </script>
 </body>
