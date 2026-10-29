@@ -1182,7 +1182,7 @@ body::after { content:none !important; animation:none !important; }
     box.className = 'logger-result-card';
     const title = document.createElement('div');
     title.className = 'logger-result-title';
-    title.textContent = titleText;
+    title.innerHTML = titleText;
     const body = document.createElement('div');
     body.className = 'logger-result-body';
     body.textContent = bodyText;
@@ -1335,7 +1335,7 @@ body::after { content:none !important; animation:none !important; }
         finish:function(host){
           appendLoggerResult(host,'SIMULATED RISK <span>ASSESSMENT</span>',
             'Illustrative review points: verify whether logging is expected, inspect the app’s declared permissions and destinations, confirm data retention, and avoid collecting sensitive data unnecessarily. NEXUS has not opened the file or verified a real vulnerability.',
-            'RESULT: DEMONSTRATION FINDINGS ONLY · NO LIVE THREATS WERE DETECTED',
+            'DEMO OUTPUT ONLY · NO LIVE SCAN OR THREAT DETECTION WAS PERFORMED',
             [['DEMO RISK INDEX','72 / 100 · FICTIONAL'],['PERMISSIONS','NOT READ'],['NETWORK TRAFFIC','NOT INSPECTED'],['EVIDENCE','NONE COLLECTED']]);
           loggerSimStage='analysis-complete';
         }
