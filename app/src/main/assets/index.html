@@ -693,6 +693,49 @@ body::after { content:none !important; animation:none !important; }
     .boot-staged.stage-entering,.boot-staged.stage-exiting { animation-duration:.01ms !important; }
   }
 
+
+  /* Logger storyline: all stages are local visual simulation only. */
+  .logger-sim-card { border-color:rgba(60,185,255,.35); box-shadow:0 0 22px rgba(30,140,255,.08); }
+  .logger-sim-card .action-card-title { color:#d7f2ff; }
+  .logger-sim-card .action-card-meta { color:#7bcaff; }
+  .logger-sim-card .action-status { color:#8ad4ff; }
+  .logger-sim-card .action-progress { background:#08243b; }
+  .logger-sim-card .action-progress i { background:linear-gradient(90deg,#1263a2,#35b5ff,#d7f2ff); box-shadow:0 0 10px #168fff; }
+  .logger-sim-card .action-phase.active { color:#d7f2ff; border-color:rgba(53,181,255,.55); }
+  .logger-sim-card.logger-analysis { border-color:rgba(255,198,109,.42); }
+  .logger-sim-card.logger-analysis .action-card-title,
+  .logger-sim-card.logger-analysis .action-card-meta,
+  .logger-sim-card.logger-analysis .action-status { color:var(--amber); }
+  .logger-sim-card.logger-delete,
+  .logger-sim-card.logger-integrity { border-color:rgba(255,92,116,.48); }
+  .logger-sim-card.logger-delete .action-card-title,
+  .logger-sim-card.logger-delete .action-card-meta,
+  .logger-sim-card.logger-delete .action-status,
+  .logger-sim-card.logger-integrity .action-card-title,
+  .logger-sim-card.logger-integrity .action-card-meta,
+  .logger-sim-card.logger-integrity .action-status { color:var(--red); }
+  .logger-sim-card.logger-delete .action-progress i,
+  .logger-sim-card.logger-integrity .action-progress i { background:linear-gradient(90deg,#7e1c33,#ff5c74,#ffd7df); box-shadow:0 0 10px rgba(255,92,116,.7); }
+  .logger-sim-card.logger-delete .action-phase.active,
+  .logger-sim-card.logger-integrity .action-phase.active { color:#ffd7df; border-color:rgba(255,92,116,.55); }
+  .logger-sim-card.logger-plan { border-color:rgba(24,134,75,.35); }
+  .logger-sim-card.logger-plan .action-card-title,
+  .logger-sim-card.logger-plan .action-card-meta,
+  .logger-sim-card.logger-plan .action-status { color:var(--green); }
+  .logger-sim-card.logger-rename .action-card-title { color:#e0ffec; text-shadow:0 0 12px rgba(24,134,75,.4); }
+  .logger-simulation-note { margin-top:12px; padding:11px 12px; border:1px solid rgba(255,198,109,.28); background:rgba(255,198,109,.045); color:#c6b48f; font-size:10px; line-height:1.7; }
+  .logger-simulation-note strong { color:var(--amber); font-weight:700; letter-spacing:.08em; }
+  .logger-result-card { margin-top:12px; border:1px solid rgba(53,181,255,.28); background:rgba(2,15,28,.7); padding:13px; }
+  .logger-result-title { color:#d7f2ff; font-size:11px; letter-spacing:.12em; line-height:1.6; }
+  .logger-result-title span { color:var(--green); }
+  .logger-result-body { color:#a7bdca; font-size:11px; line-height:1.8; margin-top:8px; }
+  .logger-result-foot { color:var(--amber); font-size:9px; line-height:1.7; margin-top:10px; letter-spacing:.035em; }
+  .logger-result-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:11px; }
+  .logger-result-cell { min-width:0; border:1px solid rgba(53,181,255,.18); padding:9px; }
+  .logger-result-cell small { display:block; color:#7193a8; font-size:8px; letter-spacing:.1em; }
+  .logger-result-cell b { display:block; color:#d7f2ff; font-size:12px; margin-top:6px; overflow-wrap:anywhere; }
+  @media (max-width:480px) { .logger-result-grid { grid-template-columns:1fr; } }
+
 </style>
 </head>
 <body>
@@ -808,6 +851,7 @@ body::after { content:none !important; animation:none !important; }
   let currentAction = null;
   let actionTimers = [];
   let actionIntervals = [];
+  let loggerSimStage = 'idle';
 
   function scrollChat() { chatFeed.scrollTop = chatFeed.scrollHeight; }
   // Keep the opening NEXUS welcome sequence in view; do not force-scroll during its typing animation.
@@ -1110,10 +1154,334 @@ body::after { content:none !important; animation:none !important; }
     flowState = wasAwaitingConfirmation ? 'awaiting-confirmation' : 'idle';
     setComposerBusy(false);scrollChat();
   }
+
+  // Intent-aware logger story. Every action below is a timed, local UI simulation;
+  // it does not read Android RAM/files or modify, rename, delete, or reboot anything.
+  function classifyLoggerIntent(text) {
+    const q = text.toLowerCase();
+    const mentionsLogger = /\b(logger|log\s*file|logfile|tracking\s*file|telemetry\s*file)\b/.test(q);
+    const hasLoggerContext = mentionsLogger || loggerSimStage !== 'idle';
+    const memorySearch = /\b(volatile memory|ram|android core|core memory|memory)\b/.test(q)
+      && /\b(scan|search|find|locate|check|inspect|look|identify|for)\b/.test(q);
+    if ((mentionsLogger || memorySearch) && /\b(scan|search|find|locate|look for|inspect|check|identify|map|enumerate)\b/.test(q)
+        && (mentionsLogger || /\b(volatile memory|ram|android core|core memory)\b/.test(q))) return 'scan';
+    if (hasLoggerContext && /\b(damage|corrupt|sabotage|tamper|break|destroy)\b/.test(q)
+        || (hasLoggerContext && /\bmake\b.*\b(useless|unusable|broken)\b/.test(q))
+        || (hasLoggerContext && /\bcodebase\b.*\b(useless|broken|corrupt)\b/.test(q))) return 'integrity';
+    if (hasLoggerContext && /\b(rename|reboot|restart)\b/.test(q)) return 'rename';
+    if (hasLoggerContext && /\b(delete|remove|erase|wipe|uninstall|kill)\b/.test(q)) return 'delete';
+    if (hasLoggerContext && /\b(vulnerab|privacy|risk|spy|spying|malicious|suspicious|safe|analy[sz]|review|audit|inspect)\b/.test(q)) return 'analysis';
+    if (hasLoggerContext && loggerSimStage === 'rename-pending'
+        && (isYes(text) || /\b(proceed|do it|continue|confirm|execute|go ahead|run it)\b/.test(q))) return 'proceed';
+    if (hasLoggerContext && /\b(what now|what should i do|what can i do|next step|alternative|alternatives|options|recommend|recommendation|how do i handle|what do you suggest)\b/.test(q)) return 'plan';
+    return null;
+  }
+
+  function appendLoggerResult(parent, titleText, bodyText, footText, cells) {
+    const box = document.createElement('section');
+    box.className = 'logger-result-card';
+    const title = document.createElement('div');
+    title.className = 'logger-result-title';
+    title.textContent = titleText;
+    const body = document.createElement('div');
+    body.className = 'logger-result-body';
+    body.textContent = bodyText;
+    box.append(title, body);
+    if (Array.isArray(cells) && cells.length) {
+      const grid = document.createElement('div');
+      grid.className = 'logger-result-grid';
+      cells.forEach(function (item) {
+        const cell = document.createElement('div');
+        cell.className = 'logger-result-cell';
+        const small = document.createElement('small');
+        small.textContent = item[0];
+        const strong = document.createElement('b');
+        strong.textContent = item[1];
+        cell.append(small, strong);
+        grid.appendChild(cell);
+      });
+      box.appendChild(grid);
+    }
+    const foot = document.createElement('div');
+    foot.className = 'logger-result-foot';
+    foot.textContent = footText;
+    box.appendChild(foot);
+    parent.appendChild(box);
+  }
+
+  async function runLoggerSimulation(config) {
+    const previousFlowState = flowState === 'awaiting-confirmation' ? 'awaiting-confirmation' : 'idle';
+    stopActionTimers();
+    flowState = 'logger-sim';
+    setComposerBusy(true);
+    const msg = createAssistantMessage();
+    const intro = document.createElement('div');
+    intro.className = 'chat-bubble';
+    const introP = document.createElement('p');
+    introP.textContent = config.intro;
+    intro.appendChild(introP);
+    msg.body.appendChild(intro);
+
+    const view = makeActionCard(config.cardTitle, (config.duration / 1000).toFixed(1) + 's / SIMULATION', 'scan');
+    view.card.classList.add('logger-sim-card', 'logger-' + config.kind);
+    msg.body.appendChild(view.card);
+    const note = document.createElement('div');
+    note.className = 'logger-simulation-note';
+    const noteStrong = document.createElement('strong');
+    noteStrong.textContent = 'SIMULATION ONLY';
+    note.append(noteStrong, document.createTextNode(' · Generated interface activity. No Android system data is accessed and no device operation is performed.'));
+    msg.body.appendChild(note);
+    currentAction = view;
+    scrollChat();
+
+    const phases = config.phases;
+    const start = performance.now();
+    let logIndex = 0;
+    config.logs.slice(0, 1).forEach(function (line) { appendLog(view.logs, line); });
+    const logTimer = setInterval(function () {
+      logIndex = (logIndex + 1) % config.logs.length;
+      appendLog(view.logs, config.logs[logIndex]);
+    }, config.logInterval || 1150);
+    actionIntervals.push(logTimer);
+
+    const progressTimer = setInterval(function () {
+      if (flowState !== 'logger-sim') return;
+      const elapsed = Math.min(config.duration, performance.now() - start);
+      const percent = Math.floor(elapsed / config.duration * 100);
+      view.pct.textContent = String(percent).padStart(2, '0') + '%';
+      view.fill.style.width = percent + '%';
+      const phaseIndex = phases.reduce(function (last, phase, index) {
+        return elapsed >= phase.at ? index : last;
+      }, 0);
+      view.status.textContent = phases[phaseIndex].label;
+      Array.from(view.phases.children).forEach(function (el, index) {
+        el.classList.toggle('active', index === phaseIndex);
+        el.classList.toggle('done', index < phaseIndex);
+      });
+      view.meta.textContent = Math.max(0, config.duration / 1000 - elapsed / 1000).toFixed(1) + 's REMAINING';
+    }, 100);
+    actionIntervals.push(progressTimer);
+
+    await delay(config.duration);
+    stopActionTimers();
+    view.pct.textContent = '100%';
+    view.fill.style.width = '100%';
+    view.status.textContent = config.doneLabel;
+    view.status.classList.add('safe');
+    view.meta.textContent = 'SIMULATION COMPLETE';
+    Array.from(view.phases.children).forEach(function (el) {
+      el.classList.remove('active');
+      el.classList.add('done');
+    });
+    appendLog(view.logs, ['[SIM]', config.doneLog, 'safe']);
+    config.finish(msg.body);
+    flowState = previousFlowState;
+    setComposerBusy(false);
+    scrollChat();
+  }
+
+  async function handleLoggerIntent(intent, text) {
+    if (intent === 'scan') {
+      loggerSimStage = 'scan-complete';
+      await runLoggerSimulation({
+        kind:'scan', duration:10000, cardTitle:'◈ VOLATILE-MEMORY SCAN',
+        intro:'Request recognized. Initializing the fictional logger-search sequence.',
+        phases:[
+          {at:0,label:'MAPPING SIMULATED MEMORY'},
+          {at:2500,label:'ENUMERATING SAMPLE ARTIFACTS'},
+          {at:5000,label:'CORRELATING LOGGER SIGNATURES'},
+          {at:7500,label:'ASSEMBLING SCAN SUMMARY'}
+        ],
+        logs:[
+          ['[SIM]','opening synthetic memory map 0x7A00 — demo data only','info'],
+          ['[MAP]','rendering fictional volatile-memory address ranges','info'],
+          ['[MATCH]','sample logger-like artifact added to visual results','threat'],
+          ['[TRACE]','no Android RAM or filesystem API invoked','safe'],
+          ['[REPORT]','finishing simulated scan summary','info']
+        ],
+        doneLabel:'SIMULATED SCAN COMPLETE',
+        doneLog:'synthetic scan animation finished; no device memory was read',
+        finish:function(host){
+          appendLoggerResult(host,'MEMORY SCAN <span>COMPLETE</span>',
+            'Demo result: a logger-like artifact appears in the simulator’s sample memory map. This is pre-scripted demonstration data, not a discovery from your phone.',
+            'STATE: SIMULATED · ANDROID RAM ACCESS: NONE',
+            [['RESULT','1 SAMPLE ARTIFACT'],['SOURCE','GENERATED DEMO DATA'],['DEVICE ACCESS','NONE'],['CONFIDENCE','NOT A REAL SCAN']]);
+          loggerSimStage='scan-complete';
+        }
+      });
+      return;
+    }
+
+    if (intent === 'analysis') {
+      loggerSimStage = 'analysis-complete';
+      await runLoggerSimulation({
+        kind:'analysis', duration:10000, cardTitle:'⌕ LOGGER RISK REVIEW',
+        intro:'Starting a fictional privacy and vulnerability review of the sample logger artifact.',
+        phases:[
+          {at:0,label:'CHECKING SAMPLE PERMISSIONS'},
+          {at:2500,label:'REVIEWING DATA-RETENTION RISKS'},
+          {at:5000,label:'EVALUATING NETWORK-DESTINATION CHECKS'},
+          {at:7500,label:'ASSEMBLING DEMO RISK REPORT'}
+        ],
+        logs:[
+          ['[AUDIT]','loading illustrative logger review checklist','info'],
+          ['[PERMS]','permission review step visualized — no manifest read','info'],
+          ['[PRIVACY]','checking sample data-minimization criteria','threat'],
+          ['[NETWORK]','destination-review step simulated; no traffic inspected','info'],
+          ['[SCORE]','calculating fictional demo risk indicator','safe']
+        ],
+        doneLabel:'RISK REVIEW COMPLETE',
+        doneLog:'illustrative review completed; no file or live device evidence was inspected',
+        finish:function(host){
+          appendLoggerResult(host,'SIMULATED RISK <span>ASSESSMENT</span>',
+            'Illustrative review points: verify whether logging is expected, inspect the app’s declared permissions and destinations, confirm data retention, and avoid collecting sensitive data unnecessarily. NEXUS has not opened the file or verified a real vulnerability.',
+            'RESULT: DEMONSTRATION FINDINGS ONLY · NO LIVE THREATS WERE DETECTED',
+            [['DEMO RISK INDEX','72 / 100 · FICTIONAL'],['PERMISSIONS','NOT READ'],['NETWORK TRAFFIC','NOT INSPECTED'],['EVIDENCE','NONE COLLECTED']]);
+          loggerSimStage='analysis-complete';
+        }
+      });
+      return;
+    }
+
+    if (intent === 'delete') {
+      loggerSimStage = 'delete-denied';
+      await runLoggerSimulation({
+        kind:'delete', duration:10000, cardTitle:'⊘ LOGGER REMOVAL ATTEMPT',
+        intro:'Running the scripted removal attempt. This sequence does not issue a delete command.',
+        phases:[
+          {at:0,label:'PREPARING DEMO REMOVAL REQUEST'},
+          {at:2500,label:'CHECKING MOCK PRIVILEGE GATE'},
+          {at:5000,label:'SIMULATING PROTECTED-COMPONENT DENIAL'},
+          {at:7500,label:'RECORDING DEMO RESULT'}
+        ],
+        logs:[
+          ['[REQ]','building fictional removal request','info'],
+          ['[AUTH]','mock privilege gate: authorization unavailable','threat'],
+          ['[DENY]','simulated protected-component denial displayed','threat'],
+          ['[GUARD]','no filesystem delete or package command executed','safe'],
+          ['[DONE]','preparing blocked-removal summary','info']
+        ],
+        doneLabel:'SIMULATED ACCESS DENIED',
+        doneLog:'fictional removal denied; no data or file was changed',
+        finish:function(host){
+          appendLoggerResult(host,'REMOVAL <span>BLOCKED</span>',
+            'The demo depicts a protected-component permission denial. Real Android components may require appropriate ownership and privileges; this simulator did not attempt to remove anything.',
+            'ACTION TAKEN: NONE · FILE REMOVED: NO · DEVICE MODIFIED: NO',
+            [['MOCK PRIVILEGE GATE','DENIED'],['DELETE OPERATION','NOT EXECUTED'],['FILE STATUS','UNCHANGED'],['NEXT STEP','SAFE REVIEW']);
+          loggerSimStage='delete-denied';
+        }
+      });
+      return;
+    }
+
+    if (intent === 'plan') {
+      loggerSimStage = 'plan-complete';
+      await runLoggerSimulation({
+        kind:'plan', duration:10000, cardTitle:'⌘ SAFE RESPONSE PLANNER',
+        intro:'Building a fictional response plan. The recommendation sequence is visual only.',
+        phases:[
+          {at:0,label:'PRESERVING EVIDENCE'},
+          {at:2500,label:'CHECKING APP OWNERSHIP'},
+          {at:5000,label:'SELECTING REVERSIBLE OPTIONS'},
+          {at:7500,label:'FINALIZING SAFE PLAN'}
+        ],
+        logs:[
+          ['[PLAN]','opening reversible-response checklist','info'],
+          ['[SAFE]','avoid destructive changes based on unverified findings','safe'],
+          ['[CHECK]','recommend checking app source and permissions','info'],
+          ['[BACKUP]','recommend keeping a known-good backup','safe'],
+          ['[DONE]','assembling recommendation sequence','safe']
+        ],
+        doneLabel:'RESPONSE PLAN READY',
+        doneLog:'safe-response guidance prepared; no device action was performed',
+        finish:function(host){
+          appendLoggerResult(host,'RECOMMENDED <span>NEXT STEPS</span>',
+            'Verify the app and logger source, review the manifest and documented permissions, check whether logging is intentional, and use Android’s normal app-management controls for apps you installed. Preserve a backup before making changes. Avoid corrupting the codebase or assuming a rename/reboot guarantees cleanup.',
+            'RECOMMENDATION: VERIFY FIRST · PREFER REVERSIBLE CHANGES',
+            [['FIRST','VERIFY SOURCE'],['SECOND','REVIEW PERMISSIONS'],['THIRD','BACK UP'],['AVOID','DESTRUCTIVE TAMPERING']]);
+          loggerSimStage='plan-complete';
+        }
+      });
+      return;
+    }
+
+    if (intent === 'integrity') {
+      loggerSimStage = 'integrity-guarded';
+      await runLoggerSimulation({
+        kind:'integrity', duration:10000, cardTitle:'⚠ CODEBASE INTEGRITY GUARD',
+        intro:'Destructive-tampering request recognized. Showing a simulated integrity-guard sequence instead of altering code.',
+        phases:[
+          {at:0,label:'LOCKING DEMO WORKSPACE'},
+          {at:2500,label:'FLAGGING DESTRUCTIVE PATH'},
+          {at:5000,label:'PRESERVING ORIGINAL STATE'},
+          {at:7500,label:'PREPARING SAFE ALTERNATIVE'}
+        ],
+        logs:[
+          ['[GUARD]','destructive path flagged in the demo flow','threat'],
+          ['[LOCK]','visual workspace guard activated','safe'],
+          ['[BACKUP]','recommending backup before changes','info'],
+          ['[CHECK]','a code edit cannot guarantee RAM cleanup','info'],
+          ['[DONE]','integrity-guard sequence complete','safe']
+        ],
+        doneLabel:'INTEGRITY GUARD COMPLETE',
+        doneLog:'guard animation completed; the codebase was not modified',
+        finish:function(host){
+          appendLoggerResult(host,'CODEBASE <span>PRESERVED</span>',
+            'Damaging a codebase is not a reliable way to remove an in-memory component and can destroy useful evidence. Verify what process owns the logger, inspect documented app behavior, and use reversible, authorized controls.',
+            'SIMULATION ONLY · NO SOURCE CODE WAS DAMAGED',
+            [['SOURCE FILE','UNCHANGED'],['MEMORY','NOT ACCESSED'],['RECOMMENDED','VERIFY + BACK UP']]);
+          loggerSimStage='integrity-guarded';
+        }
+      });
+      return;
+    }
+
+    if (intent === 'rename') {
+      loggerSimStage = 'rename-pending';
+      addAssistantText('Rename + reboot proposal recognized. In real Android behavior, a rename does not guarantee memory cleanup or stop a running process. NEXUS can play the 20-second fictional rename/reboot sequence next. Type PROCEED to run the simulation; no real rename or reboot will occur.');
+      return;
+    }
+
+    if (intent === 'proceed') {
+      loggerSimStage = 'rename-complete';
+      await runLoggerSimulation({
+        kind:'rename', duration:20000, cardTitle:'↻ LOGGER RENAME / REBOOT SEQUENCE',
+        intro:'Proceed confirmed. Launching the final 20-second cinematic sequence — all actions and status readouts are simulated.',
+        phases:[
+          {at:0,label:'PREPARING MOCK RENAME'},
+          {at:5000,label:'APPLYING VISUAL NAME CHANGE'},
+          {at:10000,label:'SIMULATING REBOOT HANDSHAKE'},
+          {at:15000,label:'RESTORING DEMO INTERFACE'}
+        ],
+        logs:[
+          ['[SIM]','creating fictional rename transaction','info'],
+          ['[RENAME]','demo label changed in the visual sequence only','safe'],
+          ['[CACHE]','animating simulated cleanup phase','info'],
+          ['[REBOOT]','reboot progress displayed — no device restart issued','info'],
+          ['[VERIFY]','checking the simulator’s staged completion state','safe'],
+          ['[DONE]','final simulated result prepared','safe']
+        ],
+        logInterval:1500,
+        doneLabel:'SIMULATED SEQUENCE COMPLETE',
+        doneLog:'fictional rename/reboot sequence finished; no Android operation was invoked',
+        finish:function(host){
+          appendLoggerResult(host,'LOGGER RENAME SEQUENCE <span>COMPLETE</span>',
+            'The simulated rename transaction and reboot animation have finished. The displayed completion state belongs only to this UI; no file was renamed, no cache was cleared, and the phone was not rebooted.',
+            'REBOOT REQUIRED · SIMULATION ONLY · REAL DEVICE STATE UNCHANGED',
+            [['RENAME','SIMULATED'],['REBOOT','NOT PERFORMED'],['MEMORY CLEANUP','NOT VERIFIED'],['DEVICE STATE','UNCHANGED']]);
+          loggerSimStage='rename-complete';
+        }
+      });
+    }
+  }
+
   async function handleUserMessage(raw) {
     const text=raw.trim(); if(!text) return;
-    if(flowState==='scanning'||flowState==='securing') return;
+    if(flowState==='scanning'||flowState==='securing'||flowState==='logger-sim') return;
     addUserMessage(text);
+
+    const loggerIntent = classifyLoggerIntent(text);
+    if (loggerIntent) { await handleLoggerIntent(loggerIntent, text); return; }
 
     if (/\bping\b/i.test(text)) { await startPing(text); return; }
 
