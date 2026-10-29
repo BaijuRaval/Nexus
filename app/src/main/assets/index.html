@@ -694,6 +694,158 @@ body::after { content:none !important; animation:none !important; }
   }
 
 
+  /* Boot split layout: persistent HUD above, coding/diagnostics console below. */
+  .boot-content {
+    position:absolute !important;
+    top:clamp(54px,8vh,72px) !important;
+    bottom:50vh !important;
+    left:0 !important; right:0 !important;
+    width:100% !important; height:auto !important;
+    min-height:0 !important; max-height:none !important;
+    margin:0 !important;
+    padding:5px clamp(220px,23vw,280px) 6px !important;
+    display:flex !important; flex-direction:column; align-items:center; justify-content:center;
+    gap:0; overflow:visible !important;
+  }
+  .boot-core-wrap {
+    width:clamp(94px,15vh,132px) !important;
+    height:clamp(94px,15vh,132px) !important;
+    margin:0 auto 3px !important; flex:0 0 auto;
+  }
+  .boot-title-wrap { flex:0 0 auto; }
+  .boot-title-wrap h1 { font-size:clamp(27px,4.7vh,42px) !important; margin:4px 0 4px !important; }
+  .boot-eyebrow { font-size:7px !important; }
+  .boot-subtitle { font-size:7px !important; }
+  .boot-message { margin-top:5px !important; min-height:12px !important; font-size:8px !important; }
+  .boot-equalizer { height:14px !important; margin:4px 0 5px !important; flex:0 0 auto; }
+  .boot-module-grid { margin:0 !important; gap:5px !important; width:min(690px,100%) !important; flex:0 0 auto; }
+  .boot-module { padding:6px 7px !important; gap:6px !important; }
+  .boot-module-icon { font-size:13px !important; }
+  .boot-module small { font-size:6px !important; }
+  .boot-module b { font-size:7px !important; }
+
+  .boot-side-hud {
+    top:clamp(76px,10vh,100px) !important;
+    width:min(220px,18vw) !important; min-width:155px;
+    max-height:calc(50vh - 105px) !important;
+    overflow:hidden !important; padding:9px 10px !important;
+  }
+  .boot-side-left { left:clamp(10px,2.5vw,32px) !important; }
+  .boot-side-right { right:clamp(10px,2.5vw,32px) !important; }
+  .side-hud-heading { padding-bottom:6px !important; margin-bottom:6px !important; font-size:7px !important; }
+  .side-radial { width:54px !important; margin:4px auto 7px !important; }
+  .side-hud-row { margin:6px 0 4px !important; }
+  .side-hud-meter { height:2px !important; }
+  .side-hud-wave { height:22px !important; }
+  .side-hud-note { margin-top:5px !important; }
+
+  .boot-persistent {
+    position:absolute !important;
+    left:0 !important; right:0 !important; top:50vh !important; bottom:0 !important;
+    height:auto !important; min-height:0 !important;
+    padding:10px clamp(12px,2.4vw,30px) 48px !important;
+    display:flex !important; flex-direction:column; gap:8px;
+    overflow:hidden;
+    background:linear-gradient(180deg,rgba(2,10,20,.96),rgba(0,3,10,.99) 30%,#000 100%) !important;
+    border-top:1px solid rgba(53,181,255,.3) !important;
+    box-shadow:0 -8px 35px rgba(0,0,0,.25), inset 0 1px 0 rgba(53,181,255,.05);
+  }
+  .boot-persistent .boot-log-panel {
+    width:min(900px,100%) !important;
+    flex:1 1 auto; min-height:0;
+    margin:0 auto !important;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    border-color:rgba(53,181,255,.24);
+    background:rgba(0,7,18,.55);
+  }
+  .boot-persistent .boot-log-head {
+    flex:0 0 auto;
+    color:#7bcaff !important;
+    padding:7px 10px !important;
+    border-bottom-color:rgba(53,181,255,.18) !important;
+  }
+  .boot-persistent .boot-log {
+    flex:1 1 auto; height:auto !important; min-height:0; max-height:none !important;
+    overflow-y:auto !important; overflow-x:hidden;
+    justify-content:flex-start !important;
+    gap:4px !important; padding:8px 10px !important;
+    color:#a6d9f7 !important;
+    font-size:clamp(8px,1.05vh,10px) !important;
+    line-height:1.5 !important;
+    scrollbar-width:thin; scrollbar-color:#17619a rgba(0,0,0,.3);
+  }
+  .boot-persistent .boot-log-line { white-space:normal; overflow-wrap:anywhere; }
+  .boot-persistent .boot-log-line span { color:#4c8fb9 !important; }
+  .boot-persistent .boot-progress-area {
+    flex:0 0 auto; width:min(900px,100%) !important;
+    margin:0 auto !important;
+  }
+  .boot-persistent .boot-progress-label,
+  .boot-persistent .boot-progress-footer { color:#699bb7 !important; }
+  .boot-persistent .boot-progress-label b { color:#d7f2ff !important; }
+  .boot-persistent .boot-progress-track { background:rgba(18,74,110,.28) !important; }
+  .boot-persistent .boot-progress-track i { background:linear-gradient(90deg,#126c9b,#4fc5ff,#d7f2ff) !important; box-shadow:0 0 12px #168fff !important; }
+  .boot-footer {
+    position:absolute !important; left:0; right:0; bottom:0;
+    width:100%; margin:0; padding:9px clamp(12px,2.4vw,30px) !important;
+    z-index:9; font-size:7px !important; background:rgba(0,2,7,.82) !important;
+    border-top:1px solid rgba(53,181,255,.1) !important;
+  }
+
+  @media (max-width:760px) {
+    .boot-content {
+      top:54px !important; bottom:50vh !important;
+      padding:3px 8px 5px !important;
+    }
+    .boot-core-wrap {
+      width:clamp(86px,13vh,112px) !important;
+      height:clamp(86px,13vh,112px) !important;
+    }
+    .boot-title-wrap h1 { font-size:clamp(26px,4.2vh,34px) !important; }
+    .boot-eyebrow { font-size:6px !important; letter-spacing:.16em !important; }
+    .boot-subtitle { font-size:6px !important; letter-spacing:.12em !important; }
+    .boot-message { font-size:7px !important; }
+    .boot-module-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; width:min(420px,100%) !important; }
+    .boot-module { padding:5px !important; gap:4px !important; }
+    .boot-module-icon { font-size:11px !important; }
+    .boot-module small { font-size:5px !important; letter-spacing:.03em !important; }
+    .boot-module b { font-size:6px !important; letter-spacing:.03em !important; }
+    .boot-side-hud {
+      top:clamp(70px,9vh,88px) !important;
+      width:min(108px,29vw) !important; min-width:0 !important;
+      max-height:135px !important; padding:6px !important;
+      background:rgba(1,13,8,.8) !important;
+    }
+    .side-hud-heading { font-size:5px !important; letter-spacing:.02em !important; gap:2px !important; }
+    .side-radial { width:34px !important; margin:2px auto 4px !important; }
+    .side-radial b { font-size:8px !important; }
+    .side-hud-row { font-size:5px !important; letter-spacing:0 !important; gap:2px !important; margin:4px 0 3px !important; }
+    .side-hud-row b { font-size:5px !important; }
+    .side-hud-meter { height:2px !important; }
+    .side-hud-wave { height:12px !important; margin-top:3px !important; }
+    .side-hex-field { gap:2px !important; margin-top:4px !important; font-size:10px !important; }
+    .side-hud-note { font-size:5px !important; line-height:1.3 !important; }
+    .boot-persistent { padding:8px 9px 42px !important; gap:6px !important; }
+    .boot-persistent .boot-log-head { font-size:6px !important; padding:6px 8px !important; }
+    .boot-persistent .boot-log { padding:6px 8px !important; font-size:7px !important; line-height:1.4 !important; }
+    .boot-persistent .boot-progress-label,
+    .boot-persistent .boot-progress-footer { font-size:5px !important; }
+    .boot-footer { padding:7px 9px !important; font-size:5px !important; letter-spacing:.04em !important; }
+    .boot-footer-center { display:none !important; }
+  }
+  @media (max-height:680px) {
+    .boot-content { top:48px !important; bottom:50vh !important; padding-top:2px !important; }
+    .boot-core-wrap { width:78px !important; height:78px !important; margin-bottom:1px !important; }
+    .boot-title-wrap h1 { font-size:25px !important; margin:2px 0 !important; }
+    .boot-equalizer { height:10px !important; margin:2px 0 3px !important; }
+    .boot-persistent { padding-top:6px !important; padding-bottom:39px !important; gap:5px !important; }
+    .boot-persistent .boot-log-head { padding:4px 8px !important; }
+    .boot-persistent .boot-progress-track { margin:4px 0 5px !important; }
+    .boot-footer { padding-top:6px !important; padding-bottom:6px !important; }
+  }
+
+
   /* Logger storyline: all stages are local visual simulation only. */
   .logger-sim-card { border-color:rgba(60,185,255,.35); box-shadow:0 0 22px rgba(30,140,255,.08); }
   .logger-sim-card .action-card-title { color:#d7f2ff; }
@@ -1627,27 +1779,24 @@ body::after { content:none !important; animation:none !important; }
     }
   }
   const bootStageSequence=[
-    {el:document.querySelector('.boot-core-wrap'),start:5.05,end:5.95},
-    {el:document.querySelector('.boot-title-wrap'),start:6.7,end:7.5},
-    {el:document.querySelector('.boot-equalizer'),start:8.25,end:8.85},
-    {el:document.querySelector('.boot-module-grid'),start:9.6,end:10.95},
-    {el:document.querySelector('.boot-side-hud.boot-side-left'),start:11.7,end:13.0},
-    {el:document.querySelector('.boot-side-hud.boot-side-right'),start:13.75,end:15.05}
+    {el:document.querySelector('.boot-core-wrap'),start:5.05,end:5.55},
+    {el:document.querySelector('.boot-title-wrap'),start:5.3,end:5.8},
+    {el:document.querySelector('.boot-equalizer'),start:5.5,end:6.0},
+    {el:document.querySelector('.boot-module-grid'),start:5.7,end:6.2},
+    {el:document.querySelector('.boot-side-hud.boot-side-left'),start:5.9,end:6.4},
+    {el:document.querySelector('.boot-side-hud.boot-side-right'),start:6.1,end:6.6}
   ];
   function updateBootStages(seconds){
     for(const stage of bootStageSequence){
       const el=stage.el;if(!el)continue;
-      if(seconds<stage.start||el.classList.contains('stage-done'))continue;
-      if(seconds<stage.end){
-        if(!el.classList.contains('stage-entering')&&!el.classList.contains('stage-exiting'))el.classList.add('stage-entering');
-      }else if(seconds<stage.end+.68){
-        if(!el.classList.contains('stage-exiting')){el.classList.remove('stage-entering');el.classList.add('stage-exiting');}
-      }else{
-        el.classList.remove('stage-entering','stage-exiting');el.classList.add('stage-done');
+      if(seconds<stage.start)continue;
+      // Objects enter once and remain visible together in the upper HUD zone.
+      if(!el.classList.contains('stage-entering')&&!el.classList.contains('stage-exiting')&&!el.classList.contains('stage-done')){
+        el.classList.add('stage-entering');
       }
     }
   }
-  function addBootLog(entry){const[stamp,message,style]=entry;const row=document.createElement('div');row.className='boot-log-line';const ts=document.createElement('span');ts.textContent=stamp;const body=document.createElement('span');if(style==='safe')body.className='boot-safe';if(style==='threat')body.className='boot-threat';row.append(ts,document.createTextNode(' > '),body);bootLog.appendChild(row);while(bootLog.children.length>4)bootLog.firstElementChild.remove();let i=0;const typeChar=()=>{if(bootDone||!row.isConnected)return;body.textContent=message.slice(0,i++);if(i<=message.length)setTimeout(typeChar,7+Math.random()*6);};typeChar();}
+  function addBootLog(entry){const[stamp,message,style]=entry;const row=document.createElement('div');row.className='boot-log-line';const ts=document.createElement('span');ts.textContent=stamp;const body=document.createElement('span');if(style==='safe')body.className='boot-safe';if(style==='threat')body.className='boot-threat';row.append(ts,document.createTextNode(' > '),body);bootLog.appendChild(row);while(bootLog.children.length>24)bootLog.firstElementChild.remove();let i=0;const typeChar=()=>{if(bootDone||!row.isConnected)return;body.textContent=message.slice(0,i++);bootLog.scrollTop=bootLog.scrollHeight;if(i<=message.length)setTimeout(typeChar,7+Math.random()*6);};typeChar();}
   function setBootModuleState(name,ready){const node=document.querySelector(`.boot-module[data-module="${name}"]`);if(!node)return;node.classList.toggle('ready',ready);const label=node.querySelector('b');if(label)label.textContent=ready?'ONLINE':'INITIALIZING';}
   function finishBoot(){if(bootDone)return;bootDone=true;bootOverlay.classList.add('is-leaving');bootCountdown.textContent='0.0';bootProgressBar.style.width='100%';bootProgressPercent.textContent='100%';bootProgressText.textContent='ALL SYSTEMS ONLINE';setTimeout(()=>{bootOverlay.hidden=true;document.body.style.overflow='';document.body.classList.add('home-visible');resizeNetwork();runHomeEntrance();},350);}
   function updateBoot(){if(bootDone)return;const elapsed=Math.min(performance.now()-bootStart,20000),seconds=elapsed/1000;if(seconds>=5)bootOverlay.classList.add('boot-detail-phase');updateBootStages(seconds);const percent=Math.min(100,Math.floor(elapsed/20000*100));bootCountdown.textContent=(20-seconds).toFixed(1);bootProgressBar.style.width=percent+'%';bootProgressPercent.textContent=String(percent).padStart(2,'0')+'%';let stage=bootStages[0];for(const c of bootStages)if(seconds>=c[0])stage=c;bootMessage.innerHTML=`${stage[1]}<span class="boot-caret">▌</span>`;bootProgressText.textContent=stage[2];if(seconds>=3)setBootModuleState('core',true);if(seconds>=6)setBootModuleState('shield',true);if(seconds>=10)setBootModuleState('network',true);if(seconds>=13)setBootModuleState('telemetry',true);if(performance.now()>=bootNextLogAt&&bootLogIndex<bootLogEntries.length){addBootLog(bootLogEntries[bootLogIndex++]);bootNextLogAt=performance.now()+760;}if(elapsed>=19650&&!bootLeaving){bootLeaving=true;bootOverlay.classList.add('is-leaving');}if(elapsed>=20000){finishBoot();return;}requestAnimationFrame(updateBoot);}
