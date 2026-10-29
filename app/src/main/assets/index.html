@@ -1158,22 +1158,36 @@ body::after { content:none !important; animation:none !important; }
   // Intent-aware logger story. Every action below is a timed, local UI simulation;
   // it does not read Android RAM/files or modify, rename, delete, or reboot anything.
   function classifyLoggerIntent(text) {
-    const q = text.toLowerCase();
-    const mentionsLogger = /\b(logger|log\s*file|logfile|tracking\s*file|telemetry\s*file)\b/.test(q);
+    const q = text.toLowerCase().replace(/[’']/g, '');
+    const mentionsLogger = /\b(logger|log\s*file|logfile|logging\s*service|tracking\s*file|telemetry\s*file|log\s*process)\b/.test(q);
+    // Keep the story context across short follow-ups such as "Any threats?", "Delete it",
+    // "Then what?" and "Rename it".
     const hasLoggerContext = mentionsLogger || loggerSimStage !== 'idle';
-    const memorySearch = /\b(volatile memory|ram|android core|core memory|memory)\b/.test(q)
-      && /\b(scan|search|find|locate|check|inspect|look|identify|for)\b/.test(q);
-    if ((mentionsLogger || memorySearch) && /\b(scan|search|find|locate|look for|inspect|check|identify|map|enumerate)\b/.test(q)
-        && (mentionsLogger || /\b(volatile memory|ram|android core|core memory)\b/.test(q))) return 'scan';
-    if (hasLoggerContext && /\b(damage|corrupt|sabotage|tamper|break|destroy)\b/.test(q)
-        || (hasLoggerContext && /\bmake\b.*\b(useless|unusable|broken)\b/.test(q))
-        || (hasLoggerContext && /\bcodebase\b.*\b(useless|broken|corrupt)\b/.test(q))) return 'integrity';
-    if (hasLoggerContext && /\b(rename|reboot|restart)\b/.test(q)) return 'rename';
-    if (hasLoggerContext && /\b(delete|remove|erase|wipe|uninstall|kill)\b/.test(q)) return 'delete';
-    if (hasLoggerContext && /\b(vulnerab|privacy|risk|spy|spying|malicious|suspicious|safe|analy[sz]|review|audit|inspect)\b/.test(q)) return 'analysis';
+
+    const scanVerb = /\b(scan|search|find|locate|look(?:\s+for)?|check|inspect|identify|map|enumerate|investigate|probe|trace|detect|discover|show|list)\b/.test(q);
+    const scanTarget = mentionsLogger || /\b(volatile\s+memory|ram|android\s+core|core\s+memory|memory|resident\s+process(?:es)?|process\s+list)\b/.test(q);
+    if (scanVerb && scanTarget && (mentionsLogger || /\b(ram|volatile|memory|android\s+core|process)\b/.test(q))) return 'scan';
+
+    if (hasLoggerContext && (
+        /\b(damage|corrupt|sabotage|tamper|break|destroy|cripple|sabotage|make\s+(?:it|this|the\s+codebase)\s+(?:useless|unusable|broken)|codebase\s+(?:useless|broken|corrupt))\b/.test(q)
+      )) return 'integrity';
+
+    // A pending rename/reboot confirmation takes priority over generic follow-up language.
     if (hasLoggerContext && loggerSimStage === 'rename-pending'
-        && (isYes(text) || /\b(proceed|do it|continue|confirm|execute|go ahead|run it)\b/.test(q))) return 'proceed';
-    if (hasLoggerContext && /\b(what now|what should i do|what can i do|next step|alternative|alternatives|options|recommend|recommendation|how do i handle|what do you suggest)\b/.test(q)) return 'plan';
+        && (isYes(text) || /\b(proceed|do\s+it|continue|confirm|execute|go\s+ahead|run\s+it|start|yes\s+do\s+it|go)\b/.test(q))) return 'proceed';
+
+    if (hasLoggerContext && /\b(rename|re[\s-]?name|relabel|change\s+(?:its|the|that)?\s*name|give\s+(?:it|the\s+logger)\s+a\s+new\s+name|new\s+name|reboot|restart|power\s*cycle)\b/.test(q)) return 'rename';
+
+    if (hasLoggerContext && /\b(delete|remove|get\s+rid\s+of|erase|wipe|clear|purge|uninstall|kill|disable|stop)\b/.test(q)) return 'delete';
+
+    if (hasLoggerContext && (
+        /\b(threats?|risk(?:s|y)?|vulnerabilit(?:y|ies)|privacy|spy|spying|spyware|monitor(?:ing)?|malware|malicious|suspicious|unsafe|danger(?:ous)?|issues?|problems?|concerns?|findings?|flags?|exposure|leak(?:s|ing)?|permissions?|analy[sz](?:e|ing|is)?|review|audit|assess(?:ment)?|inspect|is\s+it\s+safe|anything\s+wrong|what\s+did\s+(?:the\s+)?scan\s+find)\b/.test(q)
+      )) return 'analysis';
+
+    if (hasLoggerContext && (
+        /\b(then\s+what|what\s+now|now\s+what|what\s+next|next\s+step|next\s+move|what\s+should\s+i\s+do|what\s+can\s+i\s+do|what\s+do\s+i\s+do|how\s+do\s+i\s+(?:fix|handle|proceed)|any\s+solution|solutions?|recommend(?:ation)?s?|suggest(?:ion)?s?|options?|alternatives?|after\s+that|and\s+now|so\s+what\s+now|what\s+would\s+you\s+do)\b/.test(q)
+      )) return 'plan';
+
     return null;
   }
 
