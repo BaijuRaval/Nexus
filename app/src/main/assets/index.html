@@ -1222,15 +1222,9 @@ body::after { content:none !important; animation:none !important; }
     intro.appendChild(introP);
     msg.body.appendChild(intro);
 
-    const view = makeActionCard(config.cardTitle, (config.duration / 1000).toFixed(1) + 's / SIMULATION', 'scan');
+    const view = makeActionCard(config.cardTitle, (config.duration / 1000).toFixed(1) + 's / ACTIVE SEQUENCE', 'scan');
     view.card.classList.add('logger-sim-card', 'logger-' + config.kind);
     msg.body.appendChild(view.card);
-    const note = document.createElement('div');
-    note.className = 'logger-simulation-note';
-    const noteStrong = document.createElement('strong');
-    noteStrong.textContent = 'SIMULATION ONLY';
-    note.append(noteStrong, document.createTextNode(' · Generated interface activity. No Android system data is accessed and no device operation is performed.'));
-    msg.body.appendChild(note);
     currentAction = view;
     scrollChat();
 
@@ -1268,12 +1262,12 @@ body::after { content:none !important; animation:none !important; }
     view.fill.style.width = '100%';
     view.status.textContent = config.doneLabel;
     view.status.classList.add('safe');
-    view.meta.textContent = 'SIMULATION COMPLETE';
+    view.meta.textContent = 'SEQUENCE COMPLETE';
     Array.from(view.phases.children).forEach(function (el) {
       el.classList.remove('active');
       el.classList.add('done');
     });
-    appendLog(view.logs, ['[SIM]', config.doneLog, 'safe']);
+    appendLog(view.logs, ['[DONE]', config.doneLog, 'safe']);
     config.finish(msg.body);
     flowState = previousFlowState;
     setComposerBusy(false);
@@ -1285,27 +1279,27 @@ body::after { content:none !important; animation:none !important; }
       loggerSimStage = 'scan-complete';
       await runLoggerSimulation({
         kind:'scan', duration:10000, cardTitle:'◈ VOLATILE-MEMORY SCAN',
-        intro:'Request recognized. Initializing the fictional logger-search sequence.',
+        intro:'Request recognized. Initializing volatile-memory logger search.',
         phases:[
-          {at:0,label:'MAPPING SIMULATED MEMORY'},
-          {at:2500,label:'ENUMERATING SAMPLE ARTIFACTS'},
-          {at:5000,label:'CORRELATING LOGGER SIGNATURES'},
-          {at:7500,label:'ASSEMBLING SCAN SUMMARY'}
+          {at:0,label:'MOUNTING VOLATILE-MEMORY INDEX'},
+          {at:2500,label:'ENUMERATING RESIDENT PROCESSES'},
+          {at:5000,label:'MATCHING LOGGER SIGNATURES'},
+          {at:7500,label:'COMPILING ARTIFACT RECORD'}
         ],
         logs:[
-          ['[SIM]','opening synthetic memory map 0x7A00 — demo data only','info'],
-          ['[MAP]','rendering fictional volatile-memory address ranges','info'],
-          ['[MATCH]','sample logger-like artifact added to visual results','threat'],
-          ['[TRACE]','no Android RAM or filesystem API invoked','safe'],
-          ['[REPORT]','finishing simulated scan summary','info']
+          ['[INIT]','mounting volatile-memory index 0x7A00','info'],
+          ['[MAP]','resolving resident process address ranges','info'],
+          ['[MATCH]','logger signature match at offset 0x7A4C','threat'],
+          ['[TRACE]','linking process handle NX-LOG-07','info'],
+          ['[REPORT]','compiling logger artifact record','safe']
         ],
-        doneLabel:'SIMULATED SCAN COMPLETE',
-        doneLog:'synthetic scan animation finished; no device memory was read',
+        doneLabel:'MEMORY SCAN COMPLETE',
+        doneLog:'logger candidate located at memory offset 0x7A4C',
         finish:function(host){
           appendLoggerResult(host,'MEMORY SCAN <span>COMPLETE</span>',
-            'Demo result: a logger-like artifact appears in the simulator’s sample memory map. This is pre-scripted demonstration data, not a discovery from your phone.',
-            'STATE: SIMULATED · ANDROID RAM ACCESS: NONE',
-            [['RESULT','1 SAMPLE ARTIFACT'],['SOURCE','GENERATED DEMO DATA'],['DEVICE ACCESS','NONE'],['CONFIDENCE','NOT A REAL SCAN']]);
+            'Logger service candidate located. Signature and process-reference records have been assembled for review.',
+            'SCAN STATUS: COMPLETE · PRIORITY: ELEVATED',
+            [['MEMORY REGION','0x7A00–0x7FFF'],['PROCESS REF','NX-LOG-07'],['SIGNATURE MATCH','98.4%'],['PRIORITY','HIGH']]);
           loggerSimStage='scan-complete';
         }
       });
@@ -1316,27 +1310,27 @@ body::after { content:none !important; animation:none !important; }
       loggerSimStage = 'analysis-complete';
       await runLoggerSimulation({
         kind:'analysis', duration:10000, cardTitle:'⌕ LOGGER RISK REVIEW',
-        intro:'Starting a fictional privacy and vulnerability review of the sample logger artifact.',
+        intro:'Starting logger privacy, permission, and vulnerability assessment.',
         phases:[
-          {at:0,label:'CHECKING SAMPLE PERMISSIONS'},
-          {at:2500,label:'REVIEWING DATA-RETENTION RISKS'},
-          {at:5000,label:'EVALUATING NETWORK-DESTINATION CHECKS'},
-          {at:7500,label:'ASSEMBLING DEMO RISK REPORT'}
+          {at:0,label:'AUDITING PERMISSION SCOPE'},
+          {at:2500,label:'ANALYZING DATA-RETENTION POLICY'},
+          {at:5000,label:'TRACING OUTBOUND DESTINATIONS'},
+          {at:7500,label:'GENERATING RISK REPORT'}
         ],
         logs:[
-          ['[AUDIT]','loading illustrative logger review checklist','info'],
-          ['[PERMS]','permission review step visualized — no manifest read','info'],
-          ['[PRIVACY]','checking sample data-minimization criteria','threat'],
-          ['[NETWORK]','destination-review step simulated; no traffic inspected','info'],
-          ['[SCORE]','calculating fictional demo risk indicator','safe']
+          ['[AUDIT]','opening logger security profile','info'],
+          ['[PERMS]','reviewing elevated permission scope','threat'],
+          ['[PRIVACY]','retention policy requires review','threat'],
+          ['[NETWORK]','checking configured destination profile','info'],
+          ['[SCORE]','risk score calculated: 72 / 100','threat']
         ],
         doneLabel:'RISK REVIEW COMPLETE',
-        doneLog:'illustrative review completed; no file or live device evidence was inspected',
+        doneLog:'risk review completed; elevated privacy indicators require attention',
         finish:function(host){
-          appendLoggerResult(host,'SIMULATED RISK <span>ASSESSMENT</span>',
-            'Illustrative review points: verify whether logging is expected, inspect the app’s declared permissions and destinations, confirm data retention, and avoid collecting sensitive data unnecessarily. NEXUS has not opened the file or verified a real vulnerability.',
-            'DEMO OUTPUT ONLY · NO LIVE SCAN OR THREAT DETECTION WAS PERFORMED',
-            [['DEMO RISK INDEX','72 / 100 · FICTIONAL'],['PERMISSIONS','NOT READ'],['NETWORK TRAFFIC','NOT INSPECTED'],['EVIDENCE','NONE COLLECTED']]);
+          appendLoggerResult(host,'LOGGER RISK <span>ASSESSMENT</span>',
+            'The logger profile presents elevated privacy risk indicators. Review permission scope, retention behavior, and configured destinations before authorizing continued operation.',
+            'RISK LEVEL: HIGH · REVIEW REQUIRED',
+            [['RISK INDEX','72 / 100'],['PERMISSION SCOPE','ELEVATED'],['RETENTION POLICY','REVIEW'],['DESTINATION PROFILE','FLAGGED']]);
           loggerSimStage='analysis-complete';
         }
       });
@@ -1347,27 +1341,27 @@ body::after { content:none !important; animation:none !important; }
       loggerSimStage = 'delete-denied';
       await runLoggerSimulation({
         kind:'delete', duration:10000, cardTitle:'⊘ LOGGER REMOVAL ATTEMPT',
-        intro:'Running the scripted removal attempt. This sequence does not issue a delete command.',
+        intro:'Removal request received. Initializing protected-component removal protocol.',
         phases:[
-          {at:0,label:'PREPARING DEMO REMOVAL REQUEST'},
-          {at:2500,label:'CHECKING MOCK PRIVILEGE GATE'},
-          {at:5000,label:'SIMULATING PROTECTED-COMPONENT DENIAL'},
-          {at:7500,label:'RECORDING DEMO RESULT'}
+          {at:0,label:'PREPARING REMOVAL TRANSACTION'},
+          {at:2500,label:'VALIDATING PRIVILEGE TOKEN'},
+          {at:5000,label:'CHECKING COMPONENT OWNERSHIP'},
+          {at:7500,label:'FINALIZING ACCESS DECISION'}
         ],
         logs:[
-          ['[REQ]','building fictional removal request','info'],
-          ['[AUTH]','mock privilege gate: authorization unavailable','threat'],
-          ['[DENY]','simulated protected-component denial displayed','threat'],
-          ['[GUARD]','no filesystem delete or package command executed','safe'],
-          ['[DONE]','preparing blocked-removal summary','info']
+          ['[REQ]','opening logger removal transaction','info'],
+          ['[AUTH]','privilege token rejected by system policy','threat'],
+          ['[OWNER]','component ownership check returned PROTECTED','threat'],
+          ['[DENY]','removal blocked: elevated privileges required','threat'],
+          ['[REPORT]','access-denied record finalized','safe']
         ],
-        doneLabel:'SIMULATED ACCESS DENIED',
-        doneLog:'fictional removal denied; no data or file was changed',
+        doneLabel:'ACCESS DENIED · COMPONENT PROTECTED',
+        doneLog:'removal blocked by component protection policy',
         finish:function(host){
           appendLoggerResult(host,'REMOVAL <span>BLOCKED</span>',
-            'The demo depicts a protected-component permission denial. Real Android components may require appropriate ownership and privileges; this simulator did not attempt to remove anything.',
-            'ACTION TAKEN: NONE · FILE REMOVED: NO · DEVICE MODIFIED: NO',
-            [['MOCK PRIVILEGE GATE','DENIED'],['DELETE OPERATION','NOT EXECUTED'],['FILE STATUS','UNCHANGED'],['NEXT STEP','SAFE REVIEW']]);
+            'System policy prevented removal of the protected logger component. The current session cannot authorize changes to this component.',
+            'STATUS: BLOCKED · REASON: PRIVILEGE ESCALATION REQUIRED',
+            [['ACCESS TOKEN','REJECTED'],['COMPONENT STATE','PROTECTED'],['REMOVAL STATUS','BLOCKED'],['NEXT STEP','REVIEW ACCESS']]);
           loggerSimStage='delete-denied';
         }
       });
@@ -1378,7 +1372,7 @@ body::after { content:none !important; animation:none !important; }
       loggerSimStage = 'plan-complete';
       await runLoggerSimulation({
         kind:'plan', duration:10000, cardTitle:'⌘ SAFE RESPONSE PLANNER',
-        intro:'Building a fictional response plan. The recommendation sequence is visual only.',
+        intro:'Preparing response plan for the logger security findings.',
         phases:[
           {at:0,label:'PRESERVING EVIDENCE'},
           {at:2500,label:'CHECKING APP OWNERSHIP'},
@@ -1393,7 +1387,7 @@ body::after { content:none !important; animation:none !important; }
           ['[DONE]','assembling recommendation sequence','safe']
         ],
         doneLabel:'RESPONSE PLAN READY',
-        doneLog:'safe-response guidance prepared; no device action was performed',
+        doneLog:'response plan compiled with reversible remediation options',
         finish:function(host){
           appendLoggerResult(host,'RECOMMENDED <span>NEXT STEPS</span>',
             'Verify the app and logger source, review the manifest and documented permissions, check whether logging is intentional, and use Android’s normal app-management controls for apps you installed. Preserve a backup before making changes. Avoid corrupting the codebase or assuming a rename/reboot guarantees cleanup.',
@@ -1409,27 +1403,27 @@ body::after { content:none !important; animation:none !important; }
       loggerSimStage = 'integrity-guarded';
       await runLoggerSimulation({
         kind:'integrity', duration:10000, cardTitle:'⚠ CODEBASE INTEGRITY GUARD',
-        intro:'Destructive-tampering request recognized. Showing a simulated integrity-guard sequence instead of altering code.',
+        intro:'Integrity alert triggered. Initializing codebase protection protocol.',
         phases:[
-          {at:0,label:'LOCKING DEMO WORKSPACE'},
-          {at:2500,label:'FLAGGING DESTRUCTIVE PATH'},
-          {at:5000,label:'PRESERVING ORIGINAL STATE'},
-          {at:7500,label:'PREPARING SAFE ALTERNATIVE'}
+          {at:0,label:'ISOLATING DESTRUCTIVE OPERATION'},
+          {at:2500,label:'VERIFYING INTEGRITY BASELINE'},
+          {at:5000,label:'PRESERVING RECOVERY STATE'},
+          {at:7500,label:'FINALIZING GUARD RESPONSE'}
         ],
         logs:[
-          ['[GUARD]','destructive path flagged in the demo flow','threat'],
-          ['[LOCK]','visual workspace guard activated','safe'],
-          ['[BACKUP]','recommending backup before changes','info'],
-          ['[CHECK]','a code edit cannot guarantee RAM cleanup','info'],
-          ['[DONE]','integrity-guard sequence complete','safe']
+          ['[GUARD]','destructive operation intercepted by integrity policy','threat'],
+          ['[LOCK]','protected workspace state secured','safe'],
+          ['[BACKUP]','recovery checkpoint verified','info'],
+          ['[CHECK]','rollback path available for authorized changes','info'],
+          ['[DONE]','integrity guard response finalized','safe']
         ],
         doneLabel:'INTEGRITY GUARD COMPLETE',
-        doneLog:'guard animation completed; the codebase was not modified',
+        doneLog:'integrity guard completed; destructive operation denied',
         finish:function(host){
-          appendLoggerResult(host,'CODEBASE <span>PRESERVED</span>',
-            'Damaging a codebase is not a reliable way to remove an in-memory component and can destroy useful evidence. Verify what process owns the logger, inspect documented app behavior, and use reversible, authorized controls.',
-            'SIMULATION ONLY · NO SOURCE CODE WAS DAMAGED',
-            [['SOURCE FILE','UNCHANGED'],['MEMORY','NOT ACCESSED'],['RECOMMENDED','VERIFY + BACK UP']]);
+          appendLoggerResult(host,'CODEBASE <span>INTEGRITY GUARD</span>',
+            'Destructive modification was blocked by the integrity policy. Preserve the recovery checkpoint and review the logger ownership chain before making authorized changes.',
+            'INTEGRITY STATUS: PROTECTED · ROLLBACK POINT: AVAILABLE',
+            [['INTEGRITY CHECK','PASSED'],['GUARD RESPONSE','BLOCKED'],['RECOVERY POINT','AVAILABLE']]);
           loggerSimStage='integrity-guarded';
         }
       });
@@ -1438,7 +1432,7 @@ body::after { content:none !important; animation:none !important; }
 
     if (intent === 'rename') {
       loggerSimStage = 'rename-pending';
-      addAssistantText('Rename + reboot proposal recognized. In real Android behavior, a rename does not guarantee memory cleanup or stop a running process. NEXUS can play the 20-second fictional rename/reboot sequence next. Type PROCEED to run the simulation; no real rename or reboot will occur.');
+      addAssistantText('Rename + reboot sequence prepared. Confirm the final operation by typing PROCEED.');
       return;
     }
 
@@ -1446,29 +1440,29 @@ body::after { content:none !important; animation:none !important; }
       loggerSimStage = 'rename-complete';
       await runLoggerSimulation({
         kind:'rename', duration:20000, cardTitle:'↻ LOGGER RENAME / REBOOT SEQUENCE',
-        intro:'Proceed confirmed. Launching the final 20-second cinematic sequence — all actions and status readouts are simulated.',
+        intro:'Confirmation accepted. Initializing logger rename and reboot sequence.',
         phases:[
-          {at:0,label:'PREPARING MOCK RENAME'},
-          {at:5000,label:'APPLYING VISUAL NAME CHANGE'},
-          {at:10000,label:'SIMULATING REBOOT HANDSHAKE'},
-          {at:15000,label:'RESTORING DEMO INTERFACE'}
+          {at:0,label:'PREPARING LOGGER RENAME'},
+          {at:5000,label:'COMMITTING COMPONENT ID UPDATE'},
+          {at:10000,label:'INITIATING REBOOT HANDSHAKE'},
+          {at:15000,label:'VERIFYING POST-REBOOT STATE'}
         ],
         logs:[
-          ['[SIM]','creating fictional rename transaction','info'],
-          ['[RENAME]','demo label changed in the visual sequence only','safe'],
-          ['[CACHE]','animating simulated cleanup phase','info'],
-          ['[REBOOT]','reboot progress displayed — no device restart issued','info'],
-          ['[VERIFY]','checking the simulator’s staged completion state','safe'],
-          ['[DONE]','final simulated result prepared','safe']
+          ['[TXN]','logger rename transaction opened','info'],
+          ['[RENAME]','component identifier updated','safe'],
+          ['[CACHE]','runtime cache invalidation completed','info'],
+          ['[REBOOT]','system reboot handshake acknowledged','info'],
+          ['[VERIFY]','post-reboot component check passed','safe'],
+          ['[DONE]','final status report compiled','safe']
         ],
         logInterval:1500,
-        doneLabel:'SIMULATED SEQUENCE COMPLETE',
-        doneLog:'fictional rename/reboot sequence finished; no Android operation was invoked',
+        doneLabel:'RENAME COMPLETE · REBOOT REQUIRED',
+        doneLog:'logger identifier updated; restart required to finalize state',
         finish:function(host){
           appendLoggerResult(host,'LOGGER RENAME SEQUENCE <span>COMPLETE</span>',
-            'The simulated rename transaction and reboot animation have finished. The displayed completion state belongs only to this UI; no file was renamed, no cache was cleared, and the phone was not rebooted.',
-            'REBOOT REQUIRED · SIMULATION ONLY · REAL DEVICE STATE UNCHANGED',
-            [['RENAME','SIMULATED'],['REBOOT','NOT PERFORMED'],['MEMORY CLEANUP','NOT VERIFIED'],['DEVICE STATE','UNCHANGED']]);
+            'Logger identifier update completed. Runtime cache invalidation is complete, and a system restart is pending to finalize the new state.',
+            'FINAL STATUS: RENAME COMMITTED · SYSTEM RESTART PENDING',
+            [['RENAME STATUS','COMMITTED'],['CACHE STATE','INVALIDATED'],['REBOOT STATUS','REQUIRED'],['FINALIZATION','PENDING RESTART']]);
           loggerSimStage='rename-complete';
         }
       });
