@@ -936,6 +936,35 @@ body::after { content:none !important; animation:none !important; }
   .protect-submit,#returnBtn { background:#e1273b; color:#fff4f5; border-color:#e1273b; }
   .protect-submit:hover,#returnBtn:hover { background:#ff6878; color:#190407; }
 
+
+  /* Masked portrait chat backdrop */
+  .chat-app {
+    position:relative;
+    isolation:isolate;
+    background:
+      linear-gradient(180deg,rgba(4,4,6,.78),rgba(5,4,6,.88)),
+      url("nexus-splash.webp") center 34% / cover no-repeat !important;
+  }
+  .chat-feed { background:transparent !important; }
+  .chat-bubble {
+    background:rgba(10,8,10,.78) !important;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .chat-msg.user .chat-bubble {
+    background:rgba(62,8,16,.76) !important;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .dashboard-embed,.overview-metric,.hud-panel {
+    background-color:rgba(8,7,9,.78) !important;
+    backdrop-filter:blur(7px);
+    -webkit-backdrop-filter:blur(7px);
+  }
+  @media (max-width:600px) {
+    .chat-app { background-position:center 30%; }
+  }
+
 </style>
 </head>
 <body>
