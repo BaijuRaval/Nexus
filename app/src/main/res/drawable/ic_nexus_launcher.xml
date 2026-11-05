@@ -2,7 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <bitmap
-            android:src="@drawable/nexus_icon_portrait"
-            android:gravity="centerCrop" />
+            android:src="@drawable/nexus_launcher_portrait"
+            android:gravity="fill" />
     </item>
 </layer-list>
