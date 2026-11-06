@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.view.WindowInsets
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -24,10 +25,24 @@ class MainActivity : Activity() {
 
         window.statusBarColor = Color.rgb(3, 7, 17)
         window.navigationBarColor = Color.rgb(3, 7, 17)
-        if (android.os.Build.VERSION.SDK_INT >= 30) window.setDecorFitsSystemWindows(true)
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            // Android 15 enforces edge-to-edge for targetSdk 35. Apply system-bar
+            // insets to the WebView so page content starts below the status bar.
+            window.setDecorFitsSystemWindows(false)
+        }
 
         webView = WebView(this).apply {
             setBackgroundColor(Color.rgb(3, 7, 17))
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                setOnApplyWindowInsetsListener { view, insets ->
+                    val systemBars = insets.getInsets(
+                        WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
+                    )
+                    view.setPadding(0, systemBars.top, 0, systemBars.bottom)
+                    insets
+                }
+                requestApplyInsets()
+            }
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
             settings.allowFileAccess = false
