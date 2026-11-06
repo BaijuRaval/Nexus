@@ -1133,13 +1133,13 @@ body::after { content:none !important; animation:none !important; }
       const orbcore=document.createElement('div'); orbcore.className='scan-orb-core'; orbcore.textContent='◈'; orb.appendChild(orbcore);
     }
     const readout=document.createElement('div'); readout.className='action-readout';
-    const status=document.createElement('div'); status.className='action-status'; status.textContent=mode==='secure'?'DEPLOYING DEFENSE':mode==='ping'?'PINGING NETWORK PATH':'THREAT ANALYSIS IN PROGRESS';
+    const status=document.createElement('div'); status.className='action-status'; status.textContent=mode==='secure'?'DEPLOYING DEFENSE':mode==='ping'?'PINGING NETWORK PATH':mode==='otp'?'INSPECTING OTP SIGNAL':'THREAT ANALYSIS IN PROGRESS';
     const line=document.createElement('div'); line.className='action-percent-line';
     const pctLabel=document.createElement('span'); pctLabel.textContent='PROCESS COMPLETION';
     const pct=document.createElement('strong'); pct.textContent='00%'; line.append(pctLabel,pct);
     const track=document.createElement('div'); track.className='action-progress'+(mode==='secure'?' secure':''); const fill=document.createElement('i'); track.appendChild(fill);
     const phases=document.createElement('div'); phases.className='action-phases';
-    const phaseLabels=mode==='secure'?['01 FILTERS','02 SHIELD','03 HARDEN','04 VERIFY']:mode==='ping'?['01 INITIATE','02 ECHO','03 REPLY','04 SUMMARY']:['01 MAP','02 PATTERNS','03 RISKS','04 REPORT'];
+    const phaseLabels=mode==='secure'?['01 FILTERS','02 SHIELD','03 HARDEN','04 VERIFY']:mode==='ping'?['01 INITIATE','02 ECHO','03 REPLY','04 SUMMARY']:mode==='otp'?['01 CAPTURE','02 INSPECT','03 CORRELATE','04 CLASSIFY']:['01 MAP','02 PATTERNS','03 RISKS','04 REPORT'];
     phaseLabels.forEach((txt,i)=>{const phase=document.createElement('div');phase.className='action-phase'+(i===0?' active':'');phase.textContent=txt;phases.appendChild(phase);});
     readout.append(status,line,track,phases); main.append(orb,readout);
     const logs=document.createElement('div'); logs.className='action-logs'; logs.setAttribute('aria-live','off');
@@ -1220,6 +1220,71 @@ body::after { content:none !important; animation:none !important; }
     
     box.append(title,target,stats,findings,ask,actions);return box;
   }
+  async function startOtpCheck(request) {
+    stopActionTimers(); flowState='scanning'; latestRequest=request; latestTarget='OTP SIGNAL'; setComposerBusy(true);
+    const msg=createAssistantMessage();
+    const intro=document.createElement('div'); intro.className='chat-bubble';
+    const p=document.createElement('p'); p.textContent='OTP keyword recognized. Starting a 10-second security inspection sequence.';
+    intro.appendChild(p); msg.body.appendChild(intro);
+    const view=makeActionCard('◈ OTP SECURITY INSPECTION','10.0s / ACTIVE ANALYSIS','otp');
+    msg.body.appendChild(view.card); currentAction=view; scrollChat();
+    const lines=[
+      ['[INIT]','opening OTP signal inspection','info'],
+      ['[CAPTURE]','isolating OTP-related event markers','info'],
+      ['[PATTERN]','checking suspicious request signatures','threat'],
+      ['[CORRELATE]','matching event sequence against risk indicators','info'],
+      ['[ALERT]','suspicious OTP activity pattern flagged','threat'],
+      ['[CLASSIFY]','assigning simulated threat classification','threat'],
+      ['[REPORT]','compiling OTP security findings','safe']
+    ];
+    const start=performance.now(); let index=0;
+    appendLog(view.logs,lines[0]);
+    const logTimer=setInterval(()=>appendLog(view.logs,lines[(++index)%lines.length]),1050);
+    actionIntervals.push(logTimer);
+    const phases=[0,2500,5000,7500];
+    const labels=['CAPTURING OTP EVENTS','INSPECTING PATTERNS','CORRELATING INDICATORS','CLASSIFYING ACTIVITY'];
+    const progressTimer=setInterval(()=>{
+      if(flowState!=='scanning') return;
+      const elapsed=Math.min(10000,performance.now()-start);
+      const percent=Math.floor(elapsed/10000*100);
+      view.pct.textContent=String(percent).padStart(2,'0')+'%'; view.fill.style.width=percent+'%';
+      const phaseIndex=phases.reduce((last,at,i)=>elapsed>=at?i:last,0);
+      view.status.textContent=labels[phaseIndex];
+      [...view.phases.children].forEach((el,i)=>{el.classList.toggle('active',i===phaseIndex);el.classList.toggle('done',i<phaseIndex);});
+      view.meta.textContent=`${Math.max(0,10-elapsed/1000).toFixed(1)}s REMAINING`;
+    },80);
+    actionIntervals.push(progressTimer);
+    await delay(10000);
+    stopActionTimers();
+    view.pct.textContent='100%'; view.fill.style.width='100%';
+    view.status.textContent='MALICIOUS ACTIVITY DETECTED'; view.status.classList.add('threat');
+    view.meta.textContent='INSPECTION COMPLETE';
+    [...view.phases.children].forEach(el=>{el.classList.remove('active');el.classList.add('done');});
+    appendLog(view.logs,['[ALERT]','malicious OTP activity classification generated','threat']);
+    const report=document.createElement('section'); report.className='report-card';
+    const title=document.createElement('div'); title.className='report-card-title'; title.innerHTML='OTP <span>THREAT REPORT</span>';
+    const target=document.createElement('div'); target.className='report-target-line'; target.textContent='TARGET: OTP EVENT · INSPECTION COMPLETE';
+    const stats=document.createElement('div'); stats.className='report-stat-grid';
+    [['ACTIVITY STATUS','MALICIOUS','threat-stat'],['RISK LEVEL','HIGH','threat-stat'],['SIGNATURES','04',''],['CLASSIFICATION','SUSPICIOUS OTP','threat-stat']].forEach(v=>{
+      const cell=document.createElement('div'); cell.className='report-stat '+v[2];
+      const small=document.createElement('small'); small.textContent=v[0];
+      const strong=document.createElement('strong'); strong.textContent=v[1];
+      const foot=document.createElement('em'); foot.textContent='SIMULATED INSPECTION RESULT';
+      cell.append(small,strong,foot); stats.appendChild(cell);
+    });
+    const finding=document.createElement('div'); finding.className='report-findings';
+    [['OTP event pattern','Suspicious sequence detected','FLAGGED','red'],['Request signature','Matches simulated malicious profile','FLAGGED','red'],['Session activity','Requires operator review','REVIEW','amber']].forEach(v=>{
+      const row=document.createElement('div'); row.className='report-finding';
+      const dot=document.createElement('i'); dot.className='finding-dot'+(v[3]==='amber'?' amber':'');
+      const label=document.createElement('span'); label.textContent=v[0];
+      const detail=document.createElement('small'); detail.textContent=v[1]; label.appendChild(detail);
+      const status=document.createElement('b'); status.textContent=v[2]; row.append(dot,label,status); finding.appendChild(row);
+    });
+    const note=document.createElement('div'); note.className='confirm-box'; note.textContent='NEXUS: Malicious activity detected in the simulated OTP inspection. Review the threat report.';
+    report.append(title,target,stats,finding,note); msg.body.appendChild(report);
+    flowState='idle'; setComposerBusy(false); scrollChat();
+  }
+
   async function startPing(request) {
     const restoreConfirmation = flowState === 'awaiting-confirmation';
     stopActionTimers(); flowState='pinging'; latestRequest=request; setComposerBusy(true);
@@ -1716,6 +1781,8 @@ body::after { content:none !important; animation:none !important; }
     const text=raw.trim(); if(!text) return;
     if(flowState==='scanning'||flowState==='securing'||flowState==='logger-sim') return;
     addUserMessage(text);
+
+    if (/\botp\b/i.test(text)) { await startOtpCheck(text); return; }
 
     const loggerIntent = classifyLoggerIntent(text);
     if (loggerIntent) { await handleLoggerIntent(loggerIntent, text); return; }
