@@ -1478,9 +1478,8 @@ body::after { content:none !important; animation:none !important; }
     const scanTarget = mentionsLogger || /\b(volatile\s+memory|ram|android\s+core|core\s+memory|memory|resident\s+process(?:es)?|process\s+list)\b/.test(q);
     if (scanVerb && scanTarget && (mentionsLogger || /\b(ram|volatile|memory|android\s+core|process)\b/.test(q))) return 'scan';
 
-    if (hasLoggerContext && (
-        /\b(damage|corrupt|sabotage|tamper|break|destroy|cripple|sabotage|make\s+(?:it|this|the\s+codebase)\s+(?:useless|unusable|broken)|codebase\s+(?:useless|broken|corrupt))\b/.test(q)
-      )) return 'integrity';
+    if (/\b(integrity\s+guard|protect\s+(?:the\s+)?codebase\s+integrity|codebase\s+integrity)\b/.test(q)
+      || (hasLoggerContext && /\b(damage|corrupt|sabotage|tamper|break|destroy|cripple|make\s+(?:it|this|the\s+codebase)\s+(?:useless|unusable|broken)|codebase\s+(?:useless|broken|corrupt))\b/.test(q))) return 'integrity';
 
     // A pending rename/reboot confirmation takes priority over generic follow-up language.
     if (hasLoggerContext && loggerSimStage === 'rename-pending'
@@ -1495,7 +1494,7 @@ body::after { content:none !important; animation:none !important; }
       )) return 'analysis';
 
     if (hasLoggerContext && (
-        /\b(then\s+what|what\s+now|now\s+what|what\s+next|next\s+step|next\s+move|what\s+should\s+i\s+do|what\s+can\s+i\s+do|what\s+do\s+i\s+do|how\s+do\s+i\s+(?:fix|handle|proceed)|any\s+solution|solutions?|recommend(?:ation)?s?|suggest(?:ion)?s?|options?|alternatives?|after\s+that|and\s+now|so\s+what\s+now|what\s+would\s+you\s+do)\b/.test(q)
+        /\b(plan|safe\s+response|then\s+what|what\s+now|now\s+what|what\s+next|next\s+step|next\s+move|what\s+should\s+i\s+do|what\s+can\s+i\s+do|what\s+do\s+i\s+do|how\s+do\s+i\s+(?:fix|handle|proceed)|any\s+solution|solutions?|recommend(?:ation)?s?|suggest(?:ion)?s?|options?|alternatives?|after\s+that|and\s+now|so\s+what\s+now|what\s+would\s+you\s+do)\b/.test(q)
       )) return 'plan';
 
     return null;
@@ -1832,7 +1831,7 @@ body::after { content:none !important; animation:none !important; }
   }
   const commandPalette=$('commandPalette');
   const commandPrompts=[
-    ['Phone number scan','Scan a phone number','Scan +1 202 555 0147'],
+    ['Phone number scan','Scan a phone number','Phone number: +1 202 555 0147'],
     ['Ping network','Run a simulated ping sequence','Ping the network'],
     ['OTP inspection','Inspect a suspicious OTP event','Check OTP security'],
     ['Find logger in memory','Run the logger memory-scan simulation','Scan logger in RAM'],
